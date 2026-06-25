@@ -143,7 +143,16 @@ export async function runTurn(history: ChatMessage[]): Promise<AgentResult> {
 
     // Reinjeta a chamada do modelo e a resposta da ferramenta no contexto,
     // para que o modelo narre (ou peça a data) na próxima iteração.
-    contents.push({ role: "model", parts: [{ functionCall: fc }] });
+    // IMPORTANTE: reenviar o CONTEÚDO ORIGINAL do modelo (não remontar o
+    // functionCall na mão), pois ele carrega a thoughtSignature que o Gemini
+    // exige de volta para tools funcionarem (erro 400 caso contrário).
+    const modelContent = res.candidates?.[0]?.content;
+    if (modelContent) {
+      contents.push(modelContent);
+    } else {
+      contents.push({ role: "model", parts: [{ functionCall: fc }] });
+    }
+
     contents.push({
       role: "user",
       parts: [
