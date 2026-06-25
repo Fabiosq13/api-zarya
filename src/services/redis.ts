@@ -20,6 +20,9 @@ export function getRedis(): Redis | null {
     maxRetriesPerRequest: 2,
     lazyConnect: false,
     enableReadyCheck: true,
+    // Railway: rede interna usa IPv6. family:0 habilita dual-stack (IPv4+IPv6)
+    // e evita o erro ENOTFOUND redis.railway.internal.
+    family: 0,
   });
 
   client.on("error", (err: Error) => {
