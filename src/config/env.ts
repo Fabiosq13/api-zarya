@@ -3,7 +3,9 @@ import "dotenv/config";
 
 const schema = z.object({
   // Zarya
-  ZARYA_BASE_URL: z.string().url().default("https://apishow.zarya.net.br"),
+  // Sem default silencioso: o host de produção é o correto. Se quiser usar
+  // homologação, defina explicitamente ZARYA_BASE_URL=https://apishow.zarya.net.br
+  ZARYA_BASE_URL: z.string().url().default("https://api.zarya.net.br"),
   ZARYA_TOKEN: z.string().min(1, "ZARYA_TOKEN é obrigatório"),
   ZARYA_TIMEOUT_MS: z.coerce.number().int().positive().default(15000),
 

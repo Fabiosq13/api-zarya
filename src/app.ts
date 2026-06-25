@@ -22,9 +22,16 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   registerErrorHandler(app);
 
-  app.get("/health", async () => ({ status: "ok", ts: new Date().toISOString() }));
+  app.get("/health", async () => ({
+    status: "ok",
+    ts: new Date().toISOString(),
+    zaryaBaseUrl: env.ZARYA_BASE_URL, // facilita confirmar qual host está em uso
+    redis: env.REDIS_URL ? "configurado" : "memoria",
+  }));
 
   await app.register(portfolioRoutes);
+
+  app.log.info(`Zarya base URL em uso: ${env.ZARYA_BASE_URL}`);
 
   return app;
 }
