@@ -82,12 +82,13 @@ export async function summaryHandler(req: FastifyRequest, reply: FastifyReply) {
   }
 
   const { dtPesquisa, idCarteira } = parsed.data;
-  const { summary, cacheHit } = await portfolio.getSummary(dtPesquisa, idCarteira);
+  const { summary, posicoes, cacheHit } = await portfolio.getSummary(dtPesquisa, idCarteira);
 
   return reply.send({
     dtPesquisa,
     idCarteira,
     summary,
+    posicoes,
     meta: { cacheHit },
   });
 }

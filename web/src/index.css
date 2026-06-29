@@ -10,8 +10,7 @@
 
 @layer base {
   :root {
-    /* Conteúdo (claro) */
-    --bg: 222 24% 96%;
+    --bg: 228 44% 97%;
     --panel: 0 0% 100%;
     --ink: 224 39% 13%;
     --muted-foreground: 222 12% 46%;
@@ -42,8 +41,11 @@
   html { scroll-behavior: smooth; }
 
   body {
-    @apply bg-[hsl(var(--bg))] text-[hsl(var(--ink))] font-sans antialiased;
+    @apply text-[hsl(var(--ink))] font-sans antialiased;
     -webkit-font-smoothing: antialiased;
+    /* fundo claro e suave, harmonizando com o header azul */
+    background: linear-gradient(180deg, hsl(226 52% 96.5%), hsl(228 40% 98%));
+    background-attachment: fixed;
   }
 
   ::selection { background: hsl(var(--primary) / 0.18); }
@@ -89,6 +91,7 @@
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
   @keyframes popIn  { from { opacity:0; transform:scale(.97); } to { opacity:1; transform:none; } }
   @keyframes growBar { from { transform:scaleX(0); transform-origin:left; } to { transform:scaleX(1); transform-origin:left; } }
+  @keyframes growBarV { from { transform:scaleY(0); transform-origin:bottom; } to { transform:scaleY(1); transform-origin:bottom; } }
   @keyframes blink { 0%,100% { opacity:.3; transform:translateY(0); } 50% { opacity:1; transform:translateY(-3px); } }
 
   .shimmer { position:relative; overflow:hidden; }

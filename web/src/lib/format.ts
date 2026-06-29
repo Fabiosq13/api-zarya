@@ -21,9 +21,10 @@ export const formatPct = (n: number) => `${pctFmt.format(n ?? 0)}%`;
 export const formatNumber = (n: number) =>
   new Intl.NumberFormat("pt-BR").format(n ?? 0);
 
-/** "2025-06-05" -> "05 de jun. de 2025" */
+/** "2025-06-05" (ou "2025-06-05T00:00:00") -> "05 de jun. de 2025" */
 export function formatDateLong(iso: string): string {
-  const d = new Date(`${iso}T00:00:00`);
+  const d = new Date(`${iso.slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return "—";
   return d.toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "short",
@@ -31,8 +32,9 @@ export function formatDateLong(iso: string): string {
   });
 }
 
-/** "2025-06-05" -> "05/06/2025" */
+/** "2025-06-05" (ou "2025-06-05T00:00:00") -> "05/06/2025" */
 export function formatDateShort(iso: string): string {
-  const d = new Date(`${iso}T00:00:00`);
+  const d = new Date(`${iso.slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return "—";
   return d.toLocaleDateString("pt-BR");
 }

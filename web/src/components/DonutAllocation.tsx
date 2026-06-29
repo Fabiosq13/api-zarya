@@ -49,8 +49,8 @@ export function DonutAllocation({ summary }: { summary: PortfolioSummary }) {
   });
 
   return (
-    <Card className="h-full">
-      <div className="flex items-start justify-between border-b border-border p-5">
+    <Card className="flex h-full min-h-0 flex-col">
+      <div className="flex shrink-0 items-start justify-between border-b border-border p-5">
         <div className="flex items-center gap-2.5">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
             <PieChart className="h-4 w-4" />
@@ -76,7 +76,7 @@ export function DonutAllocation({ summary }: { summary: PortfolioSummary }) {
         </div>
       </div>
 
-      <div className="p-5">
+      <div className="min-h-0 flex-1 overflow-auto p-5">
         <div className="flex flex-col items-center gap-6 sm:flex-row">
           <div className="pop-in relative shrink-0" style={{ width: SIZE, height: SIZE }}>
             <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>

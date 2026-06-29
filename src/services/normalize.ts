@@ -22,6 +22,10 @@ export function normalizePosition(raw: ZaryaPosition): NormalizedPosition {
     noEmissor: raw.no_Emissor?.trim() || null,
     noIndice: raw.no_Indice?.trim() || null,
 
+    qtTotal: toNumber(raw.qt_Total),
+    puEstoque: toNumber(raw.pu_Estoque),
+    prPortfolio: toNumber(raw.pr_Portfolio),
+
     vlEstoque: toNumber(raw.vl_Estoque),
     vlLiquido: toNumber(raw.vl_Liquido),
     vlRendimentoLiquido: toNumber(raw.vl_Rendimento_Liquido),

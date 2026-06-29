@@ -3,6 +3,7 @@ import type {
   PortfolioSummary,
   GroupedItem,
   VencimentoItem,
+  DetailedPosition,
 } from "../types/portfolio.types.js";
 import { pct, round2 } from "../utils/number.util.js";
 
@@ -69,4 +70,27 @@ export function buildSummary(positions: NormalizedPosition[]): PortfolioSummary 
     maioresPosicoes,
     vencendoEm90Dias,
   };
+}
+
+/** Lista de posições individuais para a visão detalhada (ordenada por valor desc). */
+export function buildDetailedPositions(positions: NormalizedPosition[]): DetailedPosition[] {
+  const total = sum(positions, (p) => p.vlEstoque);
+  return positions
+    .map((p) => ({
+      ativo: p.noAtivo,
+      classe: p.noClasse,
+      subClasse: p.noSubClasse,
+      familia: p.noFamiliaProduto,
+      emissor: p.noEmissor,
+      indice: p.noIndice,
+      quantidade: round2(p.qtTotal),
+      valor: round2(p.vlEstoque),
+      valorLiquido: round2(p.vlLiquido),
+      rendimentoLiquido: round2(p.vlRendimentoLiquido),
+      rendimentoDia: round2(p.vlRendimentoDia),
+      percentual: p.prPortfolio ? round2(p.prPortfolio) : pct(p.vlEstoque, total),
+      dtVencimento: p.dtVencimento,
+      diasParaVencimento: p.diasParaVencimento,
+    }))
+    .sort((a, b) => b.valor - a.valor);
 }

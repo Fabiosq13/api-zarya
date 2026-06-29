@@ -23,9 +23,9 @@ export function SummaryHero({
   ];
 
   return (
-    <section className="card hero-grad fade-up overflow-hidden rounded-[var(--radius)]">
+    <section className="card hero-grad fade-up shrink-0 overflow-hidden rounded-[var(--radius)]">
       {/* Patrimônio em destaque */}
-      <div className="flex flex-wrap items-end justify-between gap-4 p-6 sm:p-7">
+      <div className="flex flex-wrap items-end justify-between gap-4 p-5 sm:p-6">
         <div>
           <div className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
@@ -38,7 +38,7 @@ export function SummaryHero({
             <AnimatedNumber
               value={summary.totalBruto}
               format={(n) => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)}
-              className="num text-[2.3rem] font-extrabold leading-none tracking-tight text-ink sm:text-[2.9rem]"
+              className="num text-[2.1rem] font-extrabold leading-none tracking-tight text-ink sm:text-[2.6rem]"
             />
           </div>
         </div>
@@ -61,7 +61,7 @@ export function SummaryHero({
           <div
             key={s.label}
             className={cn(
-              "p-5",
+              "p-4",
               i % 2 === 0 && "border-r border-border",
               i >= 2 && "border-t border-border",
               "sm:border-t-0 sm:border-r-0",

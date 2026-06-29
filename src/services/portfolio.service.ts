@@ -10,6 +10,7 @@ import type {
   PortfolioSummary,
   CarteiraItem,
   CarteirasResponse,
+  DetailedPosition,
 } from "../types/portfolio.types.js";
 
 /**
@@ -35,9 +36,17 @@ export async function loadComposition(
 export async function getSummary(
   dtPesquisa: string,
   idCarteira = 0,
-): Promise<{ summary: PortfolioSummary; cacheHit: boolean }> {
+): Promise<{
+  summary: PortfolioSummary;
+  posicoes: DetailedPosition[];
+  cacheHit: boolean;
+}> {
   const { positions, cacheHit } = await loadComposition(dtPesquisa, idCarteira);
-  return { summary: analytics.buildSummary(positions), cacheHit };
+  return {
+    summary: analytics.buildSummary(positions),
+    posicoes: analytics.buildDetailedPositions(positions),
+    cacheHit,
+  };
 }
 
 /** Extrai a lista de carteiras (tipos) distintas de uma composição geral (id 0). */

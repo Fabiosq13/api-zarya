@@ -41,10 +41,28 @@ export interface PortfolioSummary {
   vencendoEm90Dias: VencimentoItem[];
 }
 
+export interface DetailedPosition {
+  ativo: string;
+  classe: string;
+  subClasse: string;
+  familia: string;
+  emissor: string | null;
+  indice: string | null;
+  quantidade: number;
+  valor: number;
+  valorLiquido: number;
+  rendimentoLiquido: number;
+  rendimentoDia: number;
+  percentual: number;
+  dtVencimento: string | null;
+  diasParaVencimento: number | null;
+}
+
 export interface SummaryResponse {
   dtPesquisa: string;
   idCarteira: number;
   summary: PortfolioSummary;
+  posicoes: DetailedPosition[];
   meta: { cacheHit: boolean };
 }
 

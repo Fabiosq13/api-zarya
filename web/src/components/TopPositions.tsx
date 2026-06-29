@@ -8,8 +8,8 @@ export function TopPositions({ summary }: { summary: PortfolioSummary }) {
   const max = data.length ? Math.max(...data.map((d) => d.valor)) : 1;
 
   return (
-    <Card className="h-full">
-      <div className="flex items-center gap-2.5 border-b border-border p-5">
+    <Card className="flex h-full min-h-0 flex-col">
+      <div className="flex shrink-0 items-center gap-2.5 border-b border-border p-5">
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
           <BarChart3 className="h-4 w-4" />
         </span>
@@ -18,7 +18,7 @@ export function TopPositions({ summary }: { summary: PortfolioSummary }) {
           <h3 className="text-[0.95rem] font-bold tracking-tight">Maiores posições</h3>
         </div>
       </div>
-      <div className="space-y-3.5 p-5">
+      <div className="min-h-0 flex-1 space-y-3.5 overflow-auto p-5">
         {data.map((d, i) => (
           <div key={d.nome} className="min-w-0">
             <div className="mb-1.5 flex items-baseline justify-between gap-3">

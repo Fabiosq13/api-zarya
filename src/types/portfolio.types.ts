@@ -13,6 +13,10 @@ export interface NormalizedPosition {
   noEmissor: string | null;
   noIndice: string | null;
 
+  qtTotal: number;
+  puEstoque: number;
+  prPortfolio: number;
+
   vlEstoque: number;
   vlLiquido: number;
   vlRendimentoLiquido: number;
@@ -21,6 +25,24 @@ export interface NormalizedPosition {
   vlIRRF: number;
   vlIOF: number;
 
+  dtVencimento: string | null;
+  diasParaVencimento: number | null;
+}
+
+/** Posição individual exposta na visão detalhada (tabela de posições). */
+export interface DetailedPosition {
+  ativo: string;
+  classe: string;
+  subClasse: string;
+  familia: string;
+  emissor: string | null;
+  indice: string | null;
+  quantidade: number;
+  valor: number;
+  valorLiquido: number;
+  rendimentoLiquido: number;
+  rendimentoDia: number;
+  percentual: number;
   dtVencimento: string | null;
   diasParaVencimento: number | null;
 }

@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { TriangleAlert } from "lucide-react";
 import { fetchCarteiras, fetchSummary } from "@/lib/api";
-import type { CarteiraItem, ChatData, PortfolioSummary } from "@/types";
+import type { CarteiraItem, ChatData, DetailedPosition, PortfolioSummary } from "@/types";
 import { Header } from "@/components/Header";
 import { WalletSelector } from "@/components/WalletSelector";
 import { DateSelector } from "@/components/DateSelector";
+import { ViewTabs, type ViewKey } from "@/components/ViewTabs";
 import { SummaryHero } from "@/components/SummaryHero";
 import { DonutAllocation } from "@/components/DonutAllocation";
 import { TopPositions } from "@/components/TopPositions";
 import { VencimentosCard } from "@/components/VencimentosCard";
+import { AnalyticsView } from "@/components/AnalyticsView";
+import { PositionsTable } from "@/components/PositionsTable";
 import { ChatPanel } from "@/components/ChatPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateLong } from "@/lib/format";
@@ -18,6 +21,8 @@ export default function App() {
   const [idCarteira, setIdCarteira] = useState<number | undefined>();
   const [dtPesquisa, setDtPesquisa] = useState<string>("");
   const [summary, setSummary] = useState<PortfolioSummary | null>(null);
+  const [posicoes, setPosicoes] = useState<DetailedPosition[]>([]);
+  const [view, setView] = useState<ViewKey>("geral");
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [bootLoading, setBootLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,9 +48,11 @@ export default function App() {
     try {
       const res = await fetchSummary(date, id);
       setSummary(res.summary);
+      setPosicoes(res.posicoes ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha ao carregar dados");
       setSummary(null);
+      setPosicoes([]);
     } finally {
       setLoadingSummary(false);
     }
@@ -71,8 +78,8 @@ export default function App() {
   const busy = loadingSummary || bootLoading;
 
   return (
-    <div className="min-h-screen">
-      <Header carteiraNome={!bootLoading ? carteiraAtual?.noResumido : undefined}>
+    <div className="flex min-h-screen flex-col xl:h-screen xl:overflow-hidden">
+      <Header>
         {bootLoading ? (
           <>
             <Skeleton className="h-10 w-full sm:w-[18rem]" />
@@ -86,37 +93,56 @@ export default function App() {
         )}
       </Header>
 
-      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-5 p-4 lg:p-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <main className="min-w-0 space-y-5">
-          {error && (
-            <div className="flex items-center gap-2 rounded-lg border border-loss/30 bg-loss/8 px-4 py-3 text-sm text-loss">
-              <TriangleAlert className="h-4 w-4 shrink-0" />
-              {error}
-            </div>
-          )}
+      <div className="mx-auto w-full max-w-[1680px] min-h-0 flex-1 p-4 lg:p-5">
+        <div className="grid grid-cols-1 gap-4 xl:h-full xl:min-h-0 xl:grid-cols-[minmax(0,1fr)_390px]">
+          <main className="flex min-w-0 flex-col gap-4 xl:min-h-0">
+            <ViewTabs value={view} onChange={setView} count={summary?.quantidadePosicoes} />
 
-          {busy ? (
-            <DashboardSkeleton />
-          ) : semDados ? (
-            <EmptyState carteira={carteiraAtual?.noResumido} data={dtPesquisa} />
-          ) : summary ? (
-            <div key={`${idCarteira}-${dtPesquisa}`} className="space-y-5">
-              <SummaryHero summary={summary} dtPesquisa={dtPesquisa} />
-              <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-                <DonutAllocation summary={summary} />
-                <TopPositions summary={summary} />
+            {error && (
+              <div className="card flex shrink-0 items-center gap-2 rounded-[var(--radius)] px-4 py-3 text-sm text-loss">
+                <TriangleAlert className="h-4 w-4 shrink-0" />
+                {error}
               </div>
-              <VencimentosCard summary={summary} />
-            </div>
-          ) : null}
-        </main>
+            )}
 
-        <aside className="h-[560px] xl:sticky xl:top-[5.25rem] xl:h-[calc(100vh-6.5rem)]">
-          <ChatPanel
-            context={{ idCarteira, noResumido: carteiraAtual?.noResumido, dtPesquisa }}
-            onData={handleChatData}
-          />
-        </aside>
+            {busy ? (
+              <DashboardSkeleton />
+            ) : semDados ? (
+              <EmptyState carteira={carteiraAtual?.noResumido} data={dtPesquisa} />
+            ) : summary ? (
+              <div key={`${idCarteira}-${dtPesquisa}-${view}`} className="flex min-h-0 flex-1 flex-col gap-4">
+                <SummaryHero summary={summary} dtPesquisa={dtPesquisa} />
+
+                {view === "geral" && (
+                  <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-2">
+                    <DonutAllocation summary={summary} />
+                    <TopPositions summary={summary} />
+                  </div>
+                )}
+
+                {view === "analise" && (
+                  <div className="min-h-0 flex-1 space-y-4 overflow-auto pr-0.5">
+                    <AnalyticsView summary={summary} posicoes={posicoes} />
+                    <VencimentosCard summary={summary} />
+                  </div>
+                )}
+
+                {view === "posicoes" && (
+                  <div className="min-h-0 flex-1">
+                    <PositionsTable posicoes={posicoes} />
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </main>
+
+          <aside className="h-[560px] min-h-0 xl:h-auto">
+            <ChatPanel
+              context={{ idCarteira, noResumido: carteiraAtual?.noResumido, dtPesquisa }}
+              onData={handleChatData}
+            />
+          </aside>
+        </div>
       </div>
     </div>
   );
@@ -124,7 +150,7 @@ export default function App() {
 
 function EmptyState({ carteira, data }: { carteira?: string; data: string }) {
   return (
-    <div className="card flex flex-col items-center justify-center gap-3 rounded-[var(--radius)] py-20 text-center">
+    <div className="card flex min-h-0 flex-1 flex-col items-center justify-center gap-3 rounded-[var(--radius)] py-20 text-center">
       <div className="grid h-12 w-12 place-items-center rounded-xl bg-gold/10">
         <TriangleAlert className="h-6 w-6 text-gold" />
       </div>
@@ -138,13 +164,12 @@ function EmptyState({ carteira, data }: { carteira?: string; data: string }) {
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-5">
-      <Skeleton className="h-40" />
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <Skeleton className="h-80" />
-        <Skeleton className="h-80" />
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <Skeleton className="h-36 shrink-0" />
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-2">
+        <Skeleton className="min-h-[16rem]" />
+        <Skeleton className="min-h-[16rem]" />
       </div>
-      <Skeleton className="h-48" />
     </div>
   );
 }
