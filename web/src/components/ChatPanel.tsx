@@ -59,14 +59,23 @@ export function ChatPanel({ context, onData }: Props) {
 
   return (
     <div className="card flex h-full flex-col overflow-hidden rounded-[var(--radius)]">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2.5">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary">
-            <Sparkles className="h-4.5 w-4.5 text-white" strokeWidth={2.2} />
+      <div className="flex items-center justify-between border-b border-border bg-[hsl(220_40%_99%)] px-4 py-3.5">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div
+              className="grid h-10 w-10 place-items-center rounded-full text-white shadow-sm ring-1 ring-black/5"
+              style={{ background: "linear-gradient(135deg, hsl(230 78% 60%), hsl(255 70% 62%))" }}
+            >
+              <Sparkles className="h-5 w-5" strokeWidth={2.2} />
+            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-panel bg-gain" />
           </div>
           <div>
-            <p className="text-sm font-bold tracking-tight">Copiloto</p>
-            <p className="text-[0.66rem] text-muted-foreground">Gemini · análise de carteira</p>
+            <p className="text-[0.92rem] font-bold tracking-tight">Copiloto Zarya</p>
+            <p className="flex items-center gap-1.5 text-[0.68rem] text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-gain" />
+              Online · análise via Gemini
+            </p>
           </div>
         </div>
         {messages.length > 0 && (

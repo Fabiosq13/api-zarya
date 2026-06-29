@@ -1,5 +1,5 @@
 import { CalendarClock, CheckCircle2 } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatBRL, formatDateShort } from "@/lib/format";
 import type { PortfolioSummary } from "@/types";
@@ -20,16 +20,19 @@ export function VencimentosCard({ summary }: { summary: PortfolioSummary }) {
   const itens = summary.vencendoEm90Dias;
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <p className="eyebrow">Liquidez programada</p>
-          <h3 className="mt-1 flex items-center gap-2 text-[0.95rem] font-bold tracking-tight">
-            <CalendarClock className="h-4 w-4 text-gold" /> Vencimentos em 90 dias
-          </h3>
+      <div className="flex items-center justify-between border-b border-border p-5">
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gold/10 text-gold">
+            <CalendarClock className="h-4 w-4" />
+          </span>
+          <div>
+            <p className="eyebrow">Liquidez programada</p>
+            <h3 className="text-[0.95rem] font-bold tracking-tight">Vencimentos em 90 dias</h3>
+          </div>
         </div>
         {itens.length > 0 && <Badge variant="warning">{itens.length}</Badge>}
-      </CardHeader>
-      <CardContent>
+      </div>
+      <div className="p-5">
         {itens.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
             <CheckCircle2 className="h-8 w-8 text-gain/70" />
@@ -46,9 +49,7 @@ export function VencimentosCard({ summary }: { summary: PortfolioSummary }) {
                 <span className={cn("absolute inset-y-0 left-0 w-1", barColor(v.diasParaVencimento))} />
                 <div className="min-w-0 pl-1.5">
                   <p className="truncate text-sm font-semibold" title={v.ativo}>{v.ativo}</p>
-                  <p className="num truncate text-[0.7rem] text-muted-foreground">
-                    {v.emissor ?? "—"} · {formatDateShort(v.dtVencimento)}
-                  </p>
+                  <p className="num truncate text-[0.7rem] text-muted-foreground">{v.emissor ?? "—"} · {formatDateShort(v.dtVencimento)}</p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <span className="num text-sm font-bold">{formatBRL(v.valor)}</span>
@@ -58,7 +59,7 @@ export function VencimentosCard({ summary }: { summary: PortfolioSummary }) {
             ))}
           </div>
         )}
-      </CardContent>
+      </div>
     </Card>
   );
 }

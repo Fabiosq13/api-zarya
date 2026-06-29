@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PieChart } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { seriesColor } from "@/lib/palette";
 import { formatBRL, formatPct } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -12,9 +13,11 @@ const DIMS: { key: Dim; label: string }[] = [
   { key: "porAtivo", label: "Ativo" },
 ];
 
-const SIZE = 168;
-const STROKE = 22;
-const R = (SIZE - STROKE) / 2;
+// Geometria com folga para não recortar (sem expandir traço no hover)
+const SIZE = 184;
+const STROKE = 24;
+const PAD = 3;
+const R = (SIZE - STROKE) / 2 - PAD;
 const C = 2 * Math.PI * R;
 
 export function DonutAllocation({ summary }: { summary: PortfolioSummary }) {
@@ -47,10 +50,15 @@ export function DonutAllocation({ summary }: { summary: PortfolioSummary }) {
 
   return (
     <Card className="h-full">
-      <CardHeader className="flex flex-row items-start justify-between gap-3">
-        <div>
-          <p className="eyebrow">Composição</p>
-          <h3 className="mt-1 text-[0.95rem] font-bold tracking-tight">Alocação</h3>
+      <div className="flex items-start justify-between border-b border-border p-5">
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
+            <PieChart className="h-4 w-4" />
+          </span>
+          <div>
+            <p className="eyebrow">Composição</p>
+            <h3 className="text-[0.95rem] font-bold tracking-tight">Alocação</h3>
+          </div>
         </div>
         <div className="flex shrink-0 gap-0.5 rounded-lg border border-border bg-[hsl(220_24%_96%)] p-0.5">
           {DIMS.map((d) => (
@@ -66,33 +74,41 @@ export function DonutAllocation({ summary }: { summary: PortfolioSummary }) {
             </button>
           ))}
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent>
-        <div className="flex flex-col items-center gap-5 sm:flex-row">
-          <div className="relative shrink-0" style={{ width: SIZE, height: SIZE }}>
+      <div className="p-5">
+        <div className="flex flex-col items-center gap-6 sm:flex-row">
+          <div className="pop-in relative shrink-0" style={{ width: SIZE, height: SIZE }}>
             <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
               <g transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}>
-                <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="hsl(220 18% 92%)" strokeWidth={STROKE} />
+                <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="hsl(220 18% 93%)" strokeWidth={STROKE} />
                 {arcs.map((a, i) => (
                   <circle
                     key={i}
-                    cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none"
+                    cx={SIZE / 2}
+                    cy={SIZE / 2}
+                    r={R}
+                    fill="none"
                     stroke={a.color}
-                    strokeWidth={active === i ? STROKE + 4 : STROKE}
+                    strokeWidth={STROKE}
                     strokeDasharray={`${a.len} ${C - a.len}`}
                     strokeDashoffset={a.offset}
+                    strokeLinecap="butt"
                     onMouseEnter={() => setActive(i)}
-                    style={{ transition: "stroke-width .15s", cursor: "pointer" }}
+                    style={{
+                      opacity: active === i ? 1 : 0.32,
+                      transition: "opacity .22s ease",
+                      cursor: "pointer",
+                    }}
                   />
                 ))}
               </g>
             </svg>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="num text-2xl font-extrabold tracking-tight text-ink">
+              <span className="num text-[1.7rem] font-extrabold leading-none tracking-tight text-ink">
                 {formatPct(activeItem?.percentual ?? 0)}
               </span>
-              <span className="num mt-0.5 text-[0.7rem] text-muted-foreground">
+              <span className="num mt-1 text-[0.72rem] text-muted-foreground">
                 {formatBRL(activeItem?.valor ?? 0)}
               </span>
             </div>
@@ -104,8 +120,8 @@ export function DonutAllocation({ summary }: { summary: PortfolioSummary }) {
                 key={item.nome}
                 onMouseEnter={() => setActive(i)}
                 className={cn(
-                  "flex w-full min-w-0 items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors",
-                  active === i ? "bg-[hsl(220_24%_96%)]" : "hover:bg-[hsl(220_24%_97%)]",
+                  "flex w-full min-w-0 items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors",
+                  active === i ? "bg-[hsl(220_24%_96%)]" : "hover:bg-[hsl(220_24%_97.5%)]",
                 )}
               >
                 <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: seriesColor(i) }} />
@@ -122,7 +138,7 @@ export function DonutAllocation({ summary }: { summary: PortfolioSummary }) {
             ))}
           </div>
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 }
