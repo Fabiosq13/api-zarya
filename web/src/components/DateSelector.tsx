@@ -20,7 +20,7 @@ export function DateSelector({ value, onChange, disabled }: Props) {
       <PopoverTrigger asChild disabled={disabled}>
         <button
           className={cn(
-            "group flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-border-strong bg-panel px-3 text-sm font-medium shadow-sm transition-colors hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-ring/40 data-[state=open]:border-primary sm:w-[12.5rem]",
+            "group flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-border-strong bg-panel px-3 text-sm font-medium text-ink shadow-sm transition-colors hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-ring/40 data-[state=open]:border-primary sm:w-[12.5rem]",
             disabled && "cursor-not-allowed opacity-50",
           )}
         >

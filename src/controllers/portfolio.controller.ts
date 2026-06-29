@@ -48,6 +48,7 @@ export async function chatHandler(req: FastifyRequest, reply: FastifyReply) {
     answer: result.answer,
     toolUsed: result.toolUsed,
     data: result.data,
+    ui: result.ui,
     meta: {
       conversationId,
       cacheHit: result.cacheHit,

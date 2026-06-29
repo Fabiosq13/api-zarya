@@ -72,10 +72,17 @@ export interface ChatData {
   summary: PortfolioSummary;
 }
 
+export interface UiActions {
+  aba?: "geral" | "analise" | "posicoes";
+  filtroClasse?: string;
+  dimensaoAlocacao?: "porClasse" | "porFamilia" | "porAtivo";
+}
+
 export interface ChatResponse {
   answer: string;
   toolUsed: boolean;
   data: ChatData | null;
+  ui?: UiActions | null;
   meta: {
     conversationId: string;
     cacheHit: boolean;

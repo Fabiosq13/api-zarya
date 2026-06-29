@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { TriangleAlert } from "lucide-react";
 import { fetchCarteiras, fetchSummary } from "@/lib/api";
-import type { CarteiraItem, ChatData, DetailedPosition, PortfolioSummary } from "@/types";
+import type { CarteiraItem, ChatData, DetailedPosition, PortfolioSummary, UiActions } from "@/types";
 import { Header } from "@/components/Header";
 import { WalletSelector } from "@/components/WalletSelector";
 import { DateSelector } from "@/components/DateSelector";
@@ -23,6 +23,8 @@ export default function App() {
   const [summary, setSummary] = useState<PortfolioSummary | null>(null);
   const [posicoes, setPosicoes] = useState<DetailedPosition[]>([]);
   const [view, setView] = useState<ViewKey>("geral");
+  const [donutDim, setDonutDim] = useState<"porClasse" | "porFamilia" | "porAtivo">("porClasse");
+  const [filtroClasse, setFiltroClasse] = useState<string>("__todas__");
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [bootLoading, setBootLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +75,16 @@ export default function App() {
     [carteiras],
   );
 
+  const handleUi = useCallback((ui: UiActions) => {
+    if (ui.aba) setView(ui.aba);
+    if (ui.dimensaoAlocacao) setDonutDim(ui.dimensaoAlocacao);
+    if (ui.filtroClasse) {
+      const f = ui.filtroClasse.trim().toLowerCase();
+      setFiltroClasse(f === "todas" || f === "todas as classes" ? "__todas__" : ui.filtroClasse.trim());
+      if (!ui.aba) setView("posicoes");
+    }
+  }, []);
+
   const carteiraAtual = carteiras.find((c) => c.idCarteira === idCarteira);
   const semDados = summary && summary.quantidadePosicoes === 0;
   const busy = loadingSummary || bootLoading;
@@ -115,7 +127,7 @@ export default function App() {
 
                 {view === "geral" && (
                   <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-2">
-                    <DonutAllocation summary={summary} />
+                    <DonutAllocation summary={summary} dim={donutDim} onDim={setDonutDim} />
                     <TopPositions summary={summary} />
                   </div>
                 )}
@@ -129,7 +141,7 @@ export default function App() {
 
                 {view === "posicoes" && (
                   <div className="min-h-0 flex-1">
-                    <PositionsTable posicoes={posicoes} />
+                    <PositionsTable posicoes={posicoes} classe={filtroClasse} onClasse={setFiltroClasse} />
                   </div>
                 )}
               </div>
@@ -140,6 +152,7 @@ export default function App() {
             <ChatPanel
               context={{ idCarteira, noResumido: carteiraAtual?.noResumido, dtPesquisa }}
               onData={handleChatData}
+              onUi={handleUi}
             />
           </aside>
         </div>

@@ -16,9 +16,19 @@ const COLS: { key: SortKey; label: string; align: "left" | "right"; hide?: strin
   { key: "rendimentoLiquido", label: "Rend. líquido", align: "right", hide: "hidden md:table-cell" },
 ];
 
-export function PositionsTable({ posicoes }: { posicoes: DetailedPosition[] }) {
+export function PositionsTable({
+  posicoes,
+  classe: classeProp,
+  onClasse,
+}: {
+  posicoes: DetailedPosition[];
+  classe?: string;
+  onClasse?: (c: string) => void;
+}) {
   const [q, setQ] = useState("");
-  const [classe, setClasse] = useState<string>("__todas__");
+  const [classeLocal, setClasseLocal] = useState<string>("__todas__");
+  const classe = classeProp ?? classeLocal;
+  const setClasse = (c: string) => { onClasse?.(c); setClasseLocal(c); };
   const [sort, setSort] = useState<SortKey>("valor");
   const [dir, setDir] = useState<"asc" | "desc">("desc");
 

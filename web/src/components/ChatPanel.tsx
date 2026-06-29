@@ -5,10 +5,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { sendChat } from "@/lib/api";
-import type { ChatContext, ChatData } from "@/types";
+import type { ChatContext, ChatData, UiActions } from "@/types";
 
-interface Message { id: string; role: "user" | "assistant"; content: string; toolUsed?: boolean; error?: boolean; }
-interface Props { context: ChatContext; onData: (data: ChatData) => void; }
+interface Message { id: string; role: "user" | "assistant"; content: string; toolUsed?: boolean; uiUsed?: boolean; error?: boolean; }
+interface Props { context: ChatContext; onData: (data: ChatData) => void; onUi?: (ui: UiActions) => void; }
 
 const SUGGESTIONS = [
   { icon: Layers, label: "Resumir carteira", text: "Resuma a carteira selecionada com os principais números." },
@@ -18,7 +18,7 @@ const SUGGESTIONS = [
 ];
 const uid = () => Math.random().toString(36).slice(2);
 
-export function ChatPanel({ context, onData }: Props) {
+export function ChatPanel({ context, onData, onUi }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,8 +47,10 @@ export function ChatPanel({ context, onData }: Props) {
     try {
       const res = await sendChat({ conversationId: conversationId.current, message: content, context });
       conversationId.current = res.meta.conversationId;
-      setMessages((m) => [...m, { id: uid(), role: "assistant", content: res.answer, toolUsed: res.toolUsed }]);
+      const uiUsed = !!res.ui && Object.keys(res.ui).length > 0;
+      setMessages((m) => [...m, { id: uid(), role: "assistant", content: res.answer, toolUsed: res.toolUsed && !!res.data, uiUsed }]);
       if (res.data) onData(res.data);
+      if (res.ui && uiUsed) onUi?.(res.ui);
     } catch (e) {
       setMessages((m) => [...m, { id: uid(), role: "assistant", content: e instanceof Error ? e.message : "Não consegui responder agora.", error: true }]);
     } finally {
@@ -108,9 +110,18 @@ export function ChatPanel({ context, onData }: Props) {
                 </div>
               )}
               <div className="prose-chat"><ReactMarkdown>{m.content}</ReactMarkdown></div>
-              {m.toolUsed && (
-                <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-gain/10 px-2 py-0.5 text-[0.68rem] font-semibold text-gain">
-                  <RefreshCw className="h-3 w-3" /> Painel atualizado
+              {(m.toolUsed || m.uiUsed) && (
+                <span className="mt-2 inline-flex flex-wrap items-center gap-1">
+                  {m.toolUsed && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-gain/10 px-2 py-0.5 text-[0.68rem] font-semibold text-gain">
+                      <RefreshCw className="h-3 w-3" /> Painel atualizado
+                    </span>
+                  )}
+                  {m.uiUsed && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[0.68rem] font-semibold text-primary">
+                      <RefreshCw className="h-3 w-3" /> Tela ajustada
+                    </span>
+                  )}
                 </span>
               )}
             </div>

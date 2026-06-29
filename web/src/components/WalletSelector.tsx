@@ -15,7 +15,7 @@ export function WalletSelector({ carteiras, value, onChange, disabled }: Props) 
   const atual = carteiras.find((c) => c.idCarteira === value);
   return (
     <Select value={value != null ? String(value) : undefined} onValueChange={(v) => onChange(Number(v))} disabled={disabled}>
-      <SelectTrigger className="w-full sm:w-[18rem]">
+      <SelectTrigger className="w-full text-ink sm:w-[18rem]">
         <SelectValue placeholder="Selecione a carteira">
           {atual && <span className="truncate">{atual.noResumido}</span>}
         </SelectValue>

@@ -20,8 +20,18 @@ const PAD = 3;
 const R = (SIZE - STROKE) / 2 - PAD;
 const C = 2 * Math.PI * R;
 
-export function DonutAllocation({ summary }: { summary: PortfolioSummary }) {
-  const [dim, setDim] = useState<Dim>("porClasse");
+export function DonutAllocation({
+  summary,
+  dim: dimProp,
+  onDim,
+}: {
+  summary: PortfolioSummary;
+  dim?: Dim;
+  onDim?: (d: Dim) => void;
+}) {
+  const [dimLocal, setDimLocal] = useState<Dim>("porClasse");
+  const dim = dimProp ?? dimLocal;
+  const setDim = (d: Dim) => { onDim?.(d); setDimLocal(d); };
   const [active, setActive] = useState(0);
 
   const data = useMemo(() => {
