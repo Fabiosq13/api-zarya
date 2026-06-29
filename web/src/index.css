@@ -3,217 +3,131 @@
 @tailwind utilities;
 
 /*
-  Aurora Wealth Terminal
-  ─ Layered midnight ink, aurora indigo→teal primary, champagne gold for value.
-  ─ Fraunces (serif) carries the big money figures; Inter Tight the UI; JetBrains Mono the data.
+  Zarya — painel de carteira. Direção enxuta e leve:
+  uma família de fonte (Inter Tight), superfícies sólidas com pouca translucidez,
+  animações em CSS (sem libs), gráficos em SVG/CSS próprios.
 */
 
 @layer base {
   :root {
-    /* Canvas — layered ink, never flat black */
-    --background: 232 33% 6%;
-    --surface: 231 26% 9%;
-    --foreground: 228 38% 95%;
+    --background: 230 30% 7%;
+    --surface: 230 22% 10%;
+    --card: 230 20% 12%;
+    --card-hover: 230 20% 14%;
+    --foreground: 225 30% 96%;
 
-    --card: 231 25% 10.5%;
-    --card-foreground: 228 38% 95%;
+    --muted: 230 16% 18%;
+    --muted-foreground: 228 12% 62%;
 
-    --secondary: 232 20% 16%;
-    --secondary-foreground: 228 30% 90%;
+    --primary: 250 92% 72%;
+    --primary-foreground: 230 35% 9%;
+    --accent: 168 70% 52%;
 
-    --muted: 232 18% 15%;
-    --muted-foreground: 230 13% 60%;
+    --gain: 160 66% 50%;
+    --loss: 352 85% 67%;
+    --gold: 42 80% 66%;
 
-    /* Aurora primary (indigo) + companions used in gradients */
-    --primary: 248 96% 72%;
-    --primary-foreground: 232 40% 8%;
-    --aurora-1: 252 96% 72%; /* indigo  */
-    --aurora-2: 210 95% 62%; /* azure   */
-    --aurora-3: 168 72% 55%; /* teal    */
-
-    --accent: 196 88% 60%;
-    --accent-foreground: 232 40% 8%;
-
-    /* Semantic finance colors */
-    --gain: 162 68% 50%;
-    --loss: 352 88% 68%;
-    --gold: 42 78% 66%;
-
-    --destructive: 352 80% 60%;
-    --destructive-foreground: 228 38% 96%;
-
-    --border: 232 22% 17%;
-    --input: 232 22% 17%;
-    --ring: 248 96% 72%;
-    --radius: 1rem;
+    --border: 230 18% 18%;
+    --input: 230 18% 18%;
+    --ring: 250 92% 72%;
+    --radius: 0.9rem;
   }
 
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
 
-  html {
-    scroll-behavior: smooth;
-  }
+  html { scroll-behavior: smooth; }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-feature-settings: "ss01", "cv01", "cv11";
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+    /* Gradiente estático e barato — sem camadas animadas de blur */
+    background-image:
+      radial-gradient(120% 90% at 100% 0%, hsl(250 70% 16% / 0.30), transparent 55%),
+      radial-gradient(120% 90% at 0% 100%, hsl(168 60% 14% / 0.22), transparent 55%);
+    background-attachment: fixed;
   }
 
-  ::selection {
-    background: hsl(var(--primary) / 0.3);
-    color: hsl(var(--foreground));
-  }
+  ::selection { background: hsl(var(--primary) / 0.3); }
 
-  /* Slim, quiet scrollbar */
-  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb {
-    background: hsl(232 18% 24%);
-    border-radius: 9999px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
-  }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(232 18% 32%); background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb { background: hsl(230 16% 24%); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(230 16% 32%); }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.001ms !important;
-      animation-iteration-count: 1 !important;
       transition-duration: 0.001ms !important;
     }
   }
 }
 
 @layer utilities {
-  /* Numbers feel premium when tabular */
-  .tnum { font-variant-numeric: tabular-nums; }
+  .num { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 
-  /* Refined glass: inner light + depth, not a flat blur */
-  .glass {
-    background:
-      linear-gradient(160deg, hsl(232 26% 13% / 0.72), hsl(232 30% 8% / 0.62));
-    backdrop-filter: blur(20px) saturate(140%);
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
-    box-shadow:
-      inset 0 1px 0 hsl(228 40% 96% / 0.06),
-      0 1px 0 hsl(232 40% 4% / 0.5),
-      0 24px 60px -28px hsl(232 60% 2% / 0.9);
+  /* Superfície leve: cor sólida translúcida + 1 borda. Sem backdrop pesado. */
+  .surface {
+    background: hsl(var(--card) / 0.72);
+    border: 1px solid hsl(225 30% 96% / 0.07);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .surface-solid {
+    background: hsl(var(--card));
+    border: 1px solid hsl(225 30% 96% / 0.07);
   }
 
-  .glass-strong {
-    background:
-      linear-gradient(160deg, hsl(232 28% 16% / 0.85), hsl(232 32% 9% / 0.78));
-    backdrop-filter: blur(28px) saturate(150%);
-    -webkit-backdrop-filter: blur(28px) saturate(150%);
-    box-shadow:
-      inset 0 1px 0 hsl(228 40% 96% / 0.08),
-      0 30px 80px -30px hsl(232 70% 2% / 0.95);
+  .aurora {
+    background-image: linear-gradient(115deg, hsl(250 92% 72%), hsl(210 90% 62%) 50%, hsl(168 70% 52%));
   }
-
-  .hairline { box-shadow: inset 0 0 0 1px hsl(228 40% 96% / 0.06); }
-
-  .glow-primary {
-    box-shadow:
-      0 0 0 1px hsl(var(--primary) / 0.22),
-      0 12px 48px -14px hsl(var(--primary) / 0.5);
-  }
-
-  /* The aurora gradient — the page's one signature flourish */
   .aurora-text {
-    background: linear-gradient(
-      105deg,
-      hsl(var(--aurora-1)),
-      hsl(var(--aurora-2)) 48%,
-      hsl(var(--aurora-3))
-    );
+    background-image: linear-gradient(115deg, hsl(250 92% 75%), hsl(168 70% 60%));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
-  .aurora-bg {
-    background: linear-gradient(
-      120deg,
-      hsl(var(--aurora-1)),
-      hsl(var(--aurora-2)) 50%,
-      hsl(var(--aurora-3))
-    );
-  }
-
-  .gold-text {
-    background: linear-gradient(120deg, hsl(42 82% 74%), hsl(36 70% 60%));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  /* Ambient aurora orbs behind the canvas */
-  .orb {
-    position: fixed;
-    border-radius: 9999px;
-    filter: blur(120px);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* Fine dotted grid, barely there */
-  .grid-bg {
-    background-image: radial-gradient(hsl(248 96% 72% / 0.05) 1px, transparent 1px);
-    background-size: 30px 30px;
-    mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, black 30%, transparent 80%);
-  }
-
-  /* Subtle film grain to kill banding on the dark canvas */
-  .grain::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  .ring-focus:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring) / 0.7);
+  .eyebrow {
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
   }
 }
 
 @layer components {
-  /* Shimmer for skeletons */
-  .shimmer::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, hsl(228 40% 96% / 0.08), transparent);
-    animation: shimmer 1.6s infinite;
+  /* Entradas suaves em CSS (substituem o framer-motion) */
+  .fade-up { animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .fade-in { animation: fadeIn 0.4s ease both; }
+  .pop-in  { animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popIn  { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+
+  .shimmer { position: relative; overflow: hidden; }
+  .shimmer::after {
+    content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, hsl(225 30% 96% / 0.07), transparent);
+    animation: shimmer 1.5s infinite;
   }
+  @keyframes shimmer { to { transform: translateX(100%); } }
 }
 
-/* Markdown inside chat bubbles */
+/* Markdown nas bolhas do chat */
 .prose-chat { line-height: 1.6; font-size: 0.875rem; }
 .prose-chat p { margin: 0; }
-.prose-chat p + p { margin-top: 0.6rem; }
-.prose-chat strong { font-weight: 700; color: hsl(228 40% 97%); }
-.prose-chat ul, .prose-chat ol { margin: 0.45rem 0; padding-left: 1.15rem; }
-.prose-chat li { margin: 0.18rem 0; }
+.prose-chat p + p { margin-top: 0.55rem; }
+.prose-chat strong { font-weight: 700; }
+.prose-chat ul, .prose-chat ol { margin: 0.4rem 0; padding-left: 1.1rem; }
+.prose-chat li { margin: 0.15rem 0; }
 .prose-chat li::marker { color: hsl(var(--primary)); }
 .prose-chat code {
-  font-family: "JetBrains Mono", monospace;
-  border-radius: 0.35rem;
-  background: hsl(232 22% 20% / 0.8);
-  padding: 0.06rem 0.34rem;
-  font-size: 0.82em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  border-radius: 0.3rem; background: hsl(230 16% 20%); padding: 0.05rem 0.3rem; font-size: 0.84em;
 }
-.prose-chat h1, .prose-chat h2, .prose-chat h3 {
-  font-family: "Inter Tight", sans-serif;
-  font-weight: 700;
-  margin: 0.5rem 0 0.25rem;
-  font-size: 0.95rem;
-}
+
+@keyframes growBar { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); transform-origin: left; } }
+
+@keyframes blink { 0%, 100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }

@@ -60,7 +60,7 @@ export function Calendar({ selected, onSelect, maxDate }: CalendarProps) {
         {WEEK_DAYS.map((d, i) => (
           <div
             key={i}
-            className="flex h-8 items-center justify-center font-mono text-[0.65rem] font-medium uppercase text-muted-foreground/70"
+            className="flex h-8 items-center justify-center text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground/70"
           >
             {d}
           </div>
@@ -80,13 +80,13 @@ export function Calendar({ selected, onSelect, maxDate }: CalendarProps) {
               disabled={disabled}
               onClick={() => onSelect?.(day)}
               className={cn(
-                "tnum relative flex h-9 w-9 items-center justify-center rounded-xl text-sm transition-all",
+                "num relative flex h-9 w-9 items-center justify-center rounded-xl text-sm transition-all",
                 outside && "text-muted-foreground/35",
                 !outside && "text-foreground",
                 !isSelected && !disabled && "hover:bg-white/[0.07]",
                 today && !isSelected && "text-primary",
                 isSelected &&
-                  "aurora-bg font-semibold text-primary-foreground glow-primary",
+                  "aurora font-semibold text-primary-foreground",
                 disabled && "cursor-not-allowed opacity-25",
               )}
             >

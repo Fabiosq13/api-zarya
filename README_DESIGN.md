@@ -1,37 +1,39 @@
-# Zarya Insights — Frontend redesenhado ("Aurora Wealth Terminal")
+# Zarya — frontend (versão enxuta)
 
-Overhaul visual completo do app `web/`. **Toda a lógica e o fluxo de dados foram
-preservados** — backend Fastify + Gemini, preload de carteiras por `no_Resumido`,
-seleção de carteira + data, indicadores/gráficos por carteira e a IA que reconsulta
-e atualiza o painel continuam idênticos.
+Reformulação do app `web/` focada em clareza e leveza. Lógica e fluxo de dados
+intactos (preload de carteiras por `no_Resumido`, seleção carteira+data,
+indicadores/gráficos, e o copiloto Gemini que reconsulta e atualiza o painel).
 
-## Como rodar
+## Principais mudanças desta versão
 
-Backend (raiz do projeto):
+- **Marca:** apenas "Zarya" (sem subtítulo).
+- **Mais leve:** removidos **Recharts** e **Framer Motion**. Gráficos agora são
+  SVG/CSS próprios e as animações são feitas em CSS. Bundle JS caiu de
+  **~952 KB para ~427 KB** (gzip 285 KB → 135 KB). Sem orbs animadas/película de
+  grão e com bem menos `backdrop-filter`.
+- **Fonte:** uma só família (**Inter Tight**), números com algarismos tabulares.
+- **Gráficos corrigidos:** o donut mostra só o número no centro (nunca nomes
+  longos), e a legenda trunca nomes com colunas alinhadas — nada mais sobreposto
+  ou cortado. "Maiores posições" virou lista de barras em CSS.
+- **Layout novo e mais claro:** topo com marca + seletores; um cartão de resumo
+  (patrimônio + variação no dia + líquido/rendimento/posições); dois cartões de
+  análise (alocação e maiores posições); e os vencimentos. Menos indicadores
+  soltos.
+
+## Componentes
+
+`SummaryCard` (resumo), `DonutAllocation` (SVG leve), `TopPositions` (barras CSS),
+`VencimentosCard`, `ChatPanel` (copiloto), `WalletSelector`, `DateSelector`,
+`AnimatedNumber` (count-up em rAF). Estilo em `web/src/index.css` +
+`web/tailwind.config.js` (uma fonte, tokens, animações CSS).
+
+## Rodar
+
 ```bash
-npm install
-cp .env.example .env   # preencha ZARYA_TOKEN e GEMINI_API_KEY
-npm run dev            # sobe em http://localhost:3000
+# backend (raiz): preencha ZARYA_TOKEN e GEMINI_API_KEY no .env
+npm install && npm run dev      # :3000
+# frontend
+cd web && npm install && npm run dev   # :5173
 ```
 
-Frontend (pasta web/):
-```bash
-cd web
-npm install            # reinstale: o node_modules não vai no pacote
-npm run dev            # http://localhost:5173 (proxy /api -> :3000)
-```
-
-Build de produção do front (já validado, em `web/dist`):
-```bash
-cd web && npm run build
-```
-
-## O que mudou (apenas visual)
-
-- **Tipografia**: Fraunces (serifa editorial) nos números de patrimônio · Inter Tight na UI · JetBrains Mono em dados/percentuais.
-- **Paleta**: tinta meia-noite em camadas + gradiente *aurora* (índigo→azul→teal), champanhe para valor, esmeralda/rosa para ganho/perda.
-- **Assinatura**: faixa "Patrimônio" (`HeroPanel.tsx`) com número serifado animado, brilho aurora e *ribbon* de alocação real.
-- Componentes reestilizados: KpiCards, AllocationChart, TopAssetsChart, VencimentosCard, ChatPanel (Copiloto), WalletSelector, DateSelector + primitivos card/badge/skeleton/select/calendar.
-- Novos: `src/components/HeroPanel.tsx`, `src/lib/palette.ts`, `public/favicon.svg`.
-
-Arquivos de design: `web/src/index.css`, `web/tailwind.config.js`, `web/index.html`.
+Deploy no Railway: veja `DEPLOY.md` (o backend serve o frontend buildado).
