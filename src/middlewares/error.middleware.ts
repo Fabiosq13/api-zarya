@@ -4,8 +4,12 @@ import { ZaryaError } from "../services/zarya.service.js";
 /**
  * Handler global de erros: traduz exceções em payload padronizado,
  * sem vazar stack traces ou dados sensíveis para o cliente.
+ *
+ * @param serveSpa  Quando true (frontend buildado presente), rotas GET que não
+ *                  são de API caem no index.html (fallback de SPA). Rotas de API
+ *                  continuam retornando 404 em JSON.
  */
-export function registerErrorHandler(app: FastifyInstance) {
+export function registerErrorHandler(app: FastifyInstance, serveSpa = false) {
   app.setErrorHandler((error: FastifyError, req: FastifyRequest, reply: FastifyReply) => {
     if (error instanceof ZaryaError) {
       const zaryaErr: ZaryaError = error;
@@ -34,7 +38,16 @@ export function registerErrorHandler(app: FastifyInstance) {
     });
   });
 
-  app.setNotFoundHandler((_req, reply) => {
-    reply.status(404).send({ erro: "nao_encontrado", mensagem: "Rota não encontrada." });
+  app.setNotFoundHandler((req: FastifyRequest, reply: FastifyReply) => {
+    const url = req.raw.url ?? "";
+    const isApi =
+      url.startsWith("/api") || url.startsWith("/health") || req.method !== "GET";
+
+    // Navegação no navegador (GET fora da API): entrega o app (SPA).
+    if (serveSpa && !isApi) {
+      return reply.type("text/html").sendFile("index.html");
+    }
+
+    return reply.status(404).send({ erro: "nao_encontrado", mensagem: "Rota não encontrada." });
   });
 }

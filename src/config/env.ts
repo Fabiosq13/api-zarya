@@ -24,6 +24,10 @@ const schema = z.object({
   // CORS: origens permitidas para o front (separadas por vírgula). "*" libera todas.
   CORS_ORIGIN: z.string().default("*"),
 
+  // Caminho do frontend buildado (web/dist). Opcional: por padrão é detectado
+  // automaticamente. Defina apenas se o layout de deploy for diferente.
+  WEB_DIST_PATH: z.string().min(1).optional(),
+
   // Portfólio
   // Data padrão usada no preload quando a data pedida não tem dados.
   PORTFOLIO_DEFAULT_DATE: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).default("2025-06-05"),
