@@ -14,7 +14,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "group flex h-11 w-full items-center justify-between gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 text-sm transition-colors hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-ring/60 disabled:cursor-not-allowed disabled:opacity-50 data-[state=open]:border-primary/50 [&>span]:line-clamp-1",
+      "group flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-border-strong bg-panel px-3 text-sm font-medium shadow-sm transition-colors hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-primary disabled:cursor-not-allowed disabled:opacity-50 data-[state=open]:border-primary [&>span]:line-clamp-1",
       className,
     )}
     {...props}
@@ -35,7 +35,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "surface-solid pop-in relative z-50 max-h-[20rem] min-w-[13rem] overflow-hidden rounded-xl shadow-2xl shadow-black/50",
+        "pop-in relative z-50 max-h-[20rem] min-w-[13rem] overflow-hidden rounded-xl border border-border bg-panel shadow-xl shadow-[hsl(224_39%_13%_/_0.12)]",
         position === "popper" && "data-[side=bottom]:translate-y-1.5 data-[side=top]:-translate-y-1.5",
         className,
       )}
@@ -45,8 +45,7 @@ const SelectContent = React.forwardRef<
       <SelectPrimitive.Viewport
         className={cn(
           "p-1.5",
-          position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]",
+          position === "popper" && "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]",
         )}
       >
         {children}
@@ -63,7 +62,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 pl-3 pr-9 text-sm outline-none transition-colors data-[highlighted]:bg-primary/12 data-[state=checked]:bg-primary/10 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 pl-3 pr-9 text-sm outline-none transition-colors data-[highlighted]:bg-[hsl(220_24%_96%)] data-[state=checked]:bg-primary/8 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
     {...props}

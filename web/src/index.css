@@ -3,131 +3,106 @@
 @tailwind utilities;
 
 /*
-  Zarya — painel de carteira. Direção enxuta e leve:
-  uma família de fonte (Inter Tight), superfícies sólidas com pouca translucidez,
-  animações em CSS (sem libs), gráficos em SVG/CSS próprios.
+  Zarya — tema institucional claro com rail navy.
+  Cartões brancos, hairlines, sombras sutis, um azul corporativo de acento.
+  Uma fonte (Plus Jakarta Sans). Sem libs de gráfico/animação.
 */
 
 @layer base {
   :root {
-    --background: 230 30% 7%;
-    --surface: 230 22% 10%;
-    --card: 230 20% 12%;
-    --card-hover: 230 20% 14%;
-    --foreground: 225 30% 96%;
+    /* Conteúdo (claro) */
+    --bg: 222 24% 96%;
+    --panel: 0 0% 100%;
+    --ink: 224 39% 13%;
+    --muted-foreground: 222 12% 46%;
+    --border: 220 16% 90%;
+    --border-strong: 220 14% 84%;
 
-    --muted: 230 16% 18%;
-    --muted-foreground: 228 12% 62%;
+    /* Acento corporativo */
+    --primary: 230 78% 57%;
+    --primary-foreground: 0 0% 100%;
+    --ring: 230 78% 57%;
 
-    --primary: 250 92% 72%;
-    --primary-foreground: 230 35% 9%;
-    --accent: 168 70% 52%;
+    /* Semânticos */
+    --gain: 154 64% 35%;
+    --loss: 354 70% 50%;
+    --gold: 38 82% 42%;
 
-    --gain: 160 66% 50%;
-    --loss: 352 85% 67%;
-    --gold: 42 80% 66%;
+    /* Sidebar (navy) */
+    --sidebar: 224 42% 12%;
+    --sidebar-elev: 224 36% 16%;
+    --sidebar-foreground: 220 22% 90%;
+    --sidebar-muted: 220 14% 58%;
+    --sidebar-border: 222 30% 22%;
 
-    --border: 230 18% 18%;
-    --input: 230 18% 18%;
-    --ring: 250 92% 72%;
-    --radius: 0.9rem;
+    --radius: 0.85rem;
   }
 
   * { @apply border-border; }
-
   html { scroll-behavior: smooth; }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-[hsl(var(--bg))] text-[hsl(var(--ink))] font-sans antialiased;
     -webkit-font-smoothing: antialiased;
-    /* Gradiente estático e barato — sem camadas animadas de blur */
-    background-image:
-      radial-gradient(120% 90% at 100% 0%, hsl(250 70% 16% / 0.30), transparent 55%),
-      radial-gradient(120% 90% at 0% 100%, hsl(168 60% 14% / 0.22), transparent 55%);
-    background-attachment: fixed;
   }
 
-  ::selection { background: hsl(var(--primary) / 0.3); }
+  ::selection { background: hsl(var(--primary) / 0.18); }
 
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: hsl(230 16% 24%); border-radius: 9999px; }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(230 16% 32%); }
+  ::-webkit-scrollbar-thumb { background: hsl(220 14% 80%); border-radius: 9999px; border: 2px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(220 14% 70%); background-clip: padding-box; }
 
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.001ms !important;
-      transition-duration: 0.001ms !important;
-    }
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
   }
 }
 
 @layer utilities {
   .num { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 
-  /* Superfície leve: cor sólida translúcida + 1 borda. Sem backdrop pesado. */
-  .surface {
-    background: hsl(var(--card) / 0.72);
-    border: 1px solid hsl(225 30% 96% / 0.07);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+  .card {
+    background: hsl(var(--panel));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 1px 2px hsl(224 39% 13% / 0.04), 0 1px 3px hsl(224 39% 13% / 0.05);
   }
-  .surface-solid {
-    background: hsl(var(--card));
-    border: 1px solid hsl(225 30% 96% / 0.07);
-  }
-
-  .aurora {
-    background-image: linear-gradient(115deg, hsl(250 92% 72%), hsl(210 90% 62%) 50%, hsl(168 70% 52%));
-  }
-  .aurora-text {
-    background-image: linear-gradient(115deg, hsl(250 92% 75%), hsl(168 70% 60%));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+  .card-hover { transition: box-shadow .18s ease, transform .18s ease; }
+  .card-hover:hover { box-shadow: 0 6px 20px -6px hsl(224 39% 13% / 0.12); }
 
   .eyebrow {
-    font-size: 0.64rem;
-    font-weight: 600;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: hsl(var(--muted-foreground));
+    font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: hsl(var(--muted-foreground));
   }
+
+  .chip-gain { background: hsl(var(--gain) / 0.10); color: hsl(var(--gain)); }
+  .chip-loss { background: hsl(var(--loss) / 0.10); color: hsl(var(--loss)); }
 }
 
 @layer components {
-  /* Entradas suaves em CSS (substituem o framer-motion) */
-  .fade-up { animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
-  .fade-in { animation: fadeIn 0.4s ease both; }
-  .pop-in  { animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .fade-up { animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+  .fade-in { animation: fadeIn 0.35s ease both; }
+  .pop-in  { animation: popIn 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes popIn  { from { opacity:0; transform:scale(.97); } to { opacity:1; transform:none; } }
+  @keyframes growBar { from { transform:scaleX(0); transform-origin:left; } to { transform:scaleX(1); transform-origin:left; } }
+  @keyframes blink { 0%,100% { opacity:.3; transform:translateY(0); } 50% { opacity:1; transform:translateY(-3px); } }
 
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes popIn  { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
-
-  .shimmer { position: relative; overflow: hidden; }
+  .shimmer { position:relative; overflow:hidden; }
   .shimmer::after {
-    content: ""; position: absolute; inset: 0; transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, hsl(225 30% 96% / 0.07), transparent);
-    animation: shimmer 1.5s infinite;
+    content:""; position:absolute; inset:0; transform:translateX(-100%);
+    background:linear-gradient(90deg, transparent, hsl(224 39% 13% / 0.05), transparent);
+    animation:shimmer 1.5s infinite;
   }
-  @keyframes shimmer { to { transform: translateX(100%); } }
+  @keyframes shimmer { to { transform:translateX(100%); } }
 }
 
 /* Markdown nas bolhas do chat */
-.prose-chat { line-height: 1.6; font-size: 0.875rem; }
-.prose-chat p { margin: 0; }
-.prose-chat p + p { margin-top: 0.55rem; }
-.prose-chat strong { font-weight: 700; }
-.prose-chat ul, .prose-chat ol { margin: 0.4rem 0; padding-left: 1.1rem; }
-.prose-chat li { margin: 0.15rem 0; }
-.prose-chat li::marker { color: hsl(var(--primary)); }
-.prose-chat code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  border-radius: 0.3rem; background: hsl(230 16% 20%); padding: 0.05rem 0.3rem; font-size: 0.84em;
-}
-
-@keyframes growBar { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); transform-origin: left; } }
-
-@keyframes blink { 0%, 100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+.prose-chat { line-height:1.6; font-size:0.875rem; }
+.prose-chat p { margin:0; }
+.prose-chat p + p { margin-top:0.55rem; }
+.prose-chat strong { font-weight:700; }
+.prose-chat ul, .prose-chat ol { margin:0.4rem 0; padding-left:1.1rem; }
+.prose-chat li { margin:0.15rem 0; }
+.prose-chat li::marker { color:hsl(var(--primary)); }
+.prose-chat code { font-family:ui-monospace,Menlo,monospace; border-radius:0.3rem; background:hsl(220 16% 92%); padding:0.05rem 0.3rem; font-size:0.84em; }

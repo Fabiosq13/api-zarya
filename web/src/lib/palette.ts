@@ -1,15 +1,15 @@
-/** Aurora-tuned categorical palette, shared across charts and the hero ribbon. */
+/** Paleta categórica corporativa — tons sólidos e profissionais sobre fundo claro. */
 export const SERIES = [
-  "#7B6CFF", // indigo
-  "#38E0C8", // teal
-  "#4DA6FF", // azure
-  "#E9C46A", // champagne
-  "#F472B6", // pink
-  "#A78BFA", // violet
-  "#34D8A0", // emerald
-  "#60A5FA", // blue
-  "#FBBF24", // amber
-  "#FB7185", // rose
+  "#3A57E8", // azul (primário)
+  "#0E9488", // teal
+  "#16976A", // verde
+  "#C98A12", // âmbar
+  "#7C5CFC", // violeta
+  "#2563EB", // azul royal
+  "#0EA5E9", // céu
+  "#E11D48", // rosa/vermelho
+  "#64748B", // ardósia
+  "#D97706", // laranja
 ];
 
 export const seriesColor = (i: number) => SERIES[i % SERIES.length];

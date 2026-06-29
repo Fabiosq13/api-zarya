@@ -1,35 +1,34 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter Tight", "system-ui", "sans-serif"],
+        sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
+        "border-strong": "hsl(var(--border-strong))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        surface: "hsl(var(--surface))",
-        foreground: "hsl(var(--foreground))",
+        bg: "hsl(var(--bg))",
+        panel: "hsl(var(--panel))",
+        ink: "hsl(var(--ink))",
+        foreground: "hsl(var(--ink))",
+        "muted-foreground": "hsl(var(--muted-foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
-        accent: "hsl(var(--accent))",
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--foreground))",
-        },
         gain: "hsl(var(--gain))",
         loss: "hsl(var(--loss))",
         gold: "hsl(var(--gold))",
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar))",
+          elev: "hsl(var(--sidebar-elev))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          muted: "hsl(var(--sidebar-muted))",
+          border: "hsl(var(--sidebar-border))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
