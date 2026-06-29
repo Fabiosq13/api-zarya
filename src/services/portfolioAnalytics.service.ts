@@ -34,6 +34,7 @@ function groupAndRank<T>(
  */
 export function buildSummary(positions: NormalizedPosition[]): PortfolioSummary {
   const totalBruto = sum(positions, (p) => p.vlEstoque);
+  const tributosTotais = sum(positions, (p) => p.vlTributos);
 
   const porClasse = groupAndRank(positions, (p) => p.noClasse, (p) => p.vlEstoque, totalBruto);
   const porFamilia = groupAndRank(positions, (p) => p.noFamiliaProduto, (p) => p.vlEstoque, totalBruto);
@@ -55,10 +56,12 @@ export function buildSummary(positions: NormalizedPosition[]): PortfolioSummary 
 
   return {
     totalBruto,
-    totalLiquido: sum(positions, (p) => p.vlLiquido),
+    // Líquido de tributos, determinístico (= bruto − IRRF − IOF), coerente com o rótulo.
+    // Em dados bem formados equivale a Σ vl_Liquido, mas não depende do provedor preenchê-lo.
+    totalLiquido: round2(totalBruto - tributosTotais),
     rendimentoLiquidoTotal: sum(positions, (p) => p.vlRendimentoLiquido),
     rendimentoDia: sum(positions, (p) => p.vlRendimentoDia),
-    tributosTotais: sum(positions, (p) => p.vlTributos),
+    tributosTotais,
     irrfTotal: sum(positions, (p) => p.vlIRRF),
     iofTotal: sum(positions, (p) => p.vlIOF),
     quantidadePosicoes: positions.length,

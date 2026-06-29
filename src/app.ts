@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { existsSync } from "node:fs";
 import { env } from "./config/env.js";
+import { authRoutes } from "./routes/auth.routes.js";
 import { portfolioRoutes } from "./routes/portfolio.routes.js";
 import { registerErrorHandler } from "./middlewares/error.middleware.js";
 
@@ -62,6 +63,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     redis: env.REDIS_URL ? "configurado" : "memoria",
   }));
 
+  await app.register(authRoutes);
   await app.register(portfolioRoutes);
 
   // Servir o frontend buildado (web/dist), se existir.

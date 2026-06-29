@@ -34,6 +34,13 @@ const schema = z.object({
   // Quantos dias andar para trás procurando uma data com posições.
   PORTFOLIO_LOOKBACK_DAYS: z.coerce.number().int().min(0).max(31).default(7),
 
+  // Autenticação (usuário único — sem banco de dados)
+  // Defina AUTH_SECRET e AUTH_PASSWORD em produção. Os defaults servem para dev.
+  AUTH_EMAIL: z.string().email().default("zarya@atlantyx.com.br"),
+  AUTH_PASSWORD: z.string().min(1).default("Zarya@2025"),
+  AUTH_SECRET: z.string().min(1).default("troque-este-segredo-em-producao-zarya-atlantyx"),
+  AUTH_TOKEN_TTL_HOURS: z.coerce.number().int().positive().default(12),
+
   // Conversas (Redis)
   // Se REDIS_URL não for definida, o histórico cai para memória (útil em dev local).
   REDIS_URL: z.string().min(1).optional(),

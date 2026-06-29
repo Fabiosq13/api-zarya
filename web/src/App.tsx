@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { TriangleAlert } from "lucide-react";
-import { fetchCarteiras, fetchSummary } from "@/lib/api";
+import { Loader2, TriangleAlert } from "lucide-react";
+import { fetchCarteiras, fetchMe, fetchSummary, getToken, logout } from "@/lib/api";
 import type { CarteiraItem, ChatData, DetailedPosition, PortfolioSummary, UiActions } from "@/types";
 import { Header } from "@/components/Header";
+import { LoginPage } from "@/components/LoginPage";
 import { WalletSelector } from "@/components/WalletSelector";
 import { DateSelector } from "@/components/DateSelector";
 import { ViewTabs, type ViewKey } from "@/components/ViewTabs";
@@ -28,8 +29,29 @@ export default function App() {
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [bootLoading, setBootLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [authed, setAuthed] = useState<boolean | null>(null); // null = verificando
+
+  // Bootstrap de sessão: valida o token existente; escuta expiração.
+  useEffect(() => {
+    let alive = true;
+    if (!getToken()) {
+      setAuthed(false);
+    } else {
+      fetchMe()
+        .then(() => alive && setAuthed(true))
+        .catch(() => alive && setAuthed(false));
+    }
+    const onExpired = () => setAuthed(false);
+    window.addEventListener("zarya:auth-expired", onExpired);
+    return () => {
+      alive = false;
+      window.removeEventListener("zarya:auth-expired", onExpired);
+    };
+  }, []);
 
   useEffect(() => {
+    if (!authed) return;
+    setBootLoading(true);
     (async () => {
       try {
         const res = await fetchCarteiras();
@@ -42,7 +64,7 @@ export default function App() {
         setBootLoading(false);
       }
     })();
-  }, []);
+  }, [authed]);
 
   const loadSummary = useCallback(async (date: string, id: number) => {
     setLoadingSummary(true);
@@ -89,9 +111,34 @@ export default function App() {
   const semDados = summary && summary.quantidadePosicoes === 0;
   const busy = loadingSummary || bootLoading;
 
+  function handleLogout() {
+    logout();
+    setAuthed(false);
+    setCarteiras([]);
+    setSummary(null);
+    setPosicoes([]);
+    setIdCarteira(undefined);
+    setView("geral");
+  }
+
+  if (authed === null) {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center"
+        style={{ background: "linear-gradient(135deg, hsl(232 74% 52%), hsl(248 70% 56%))" }}
+      >
+        <Loader2 className="h-7 w-7 animate-spin text-white" />
+      </div>
+    );
+  }
+
+  if (!authed) {
+    return <LoginPage onSuccess={() => setAuthed(true)} />;
+  }
+
   return (
     <div className="flex min-h-screen flex-col xl:h-screen xl:overflow-hidden">
-      <Header>
+      <Header onLogout={handleLogout}>
         {bootLoading ? (
           <>
             <Skeleton className="h-10 w-full sm:w-[18rem]" />
