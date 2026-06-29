@@ -7,6 +7,7 @@
 export interface ZaryaPosition {
   // Identificadores
   nu_Portfolio?: number;
+  no_Resumido?: string; // nome resumido da carteira (usado na seleção de carteira)
   nu_Produto?: number;
 
   // Classificação

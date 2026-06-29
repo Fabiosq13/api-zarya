@@ -14,6 +14,7 @@ export function normalizePosition(raw: ZaryaPosition): NormalizedPosition {
 
   return {
     nuPortfolio: toNumber(raw.nu_Portfolio),
+    noResumido: raw.no_Resumido?.trim() || `Carteira ${toNumber(raw.nu_Portfolio)}`,
     noClasse: raw.no_Classe?.trim() || "Não classificado",
     noSubClasse: raw.no_Sub_Classe?.trim() || "Não classificado",
     noFamiliaProduto: raw.no_Familia_Produto?.trim() || "Não classificado",

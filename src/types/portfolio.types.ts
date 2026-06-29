@@ -5,6 +5,7 @@
 
 export interface NormalizedPosition {
   nuPortfolio: number;
+  noResumido: string;
   noClasse: string;
   noSubClasse: string;
   noFamiliaProduto: string;
@@ -28,6 +29,19 @@ export interface GroupedItem {
   nome: string;
   valor: number;
   percentual: number;
+}
+
+/** Item da lista de carteiras (tipos de carteira) selecionáveis na interface. */
+export interface CarteiraItem {
+  idCarteira: number;
+  noResumido: string;
+  valorTotal: number;
+  quantidadePosicoes: number;
+}
+
+export interface CarteirasResponse {
+  dtPesquisa: string;
+  carteiras: CarteiraItem[];
 }
 
 export interface VencimentoItem {

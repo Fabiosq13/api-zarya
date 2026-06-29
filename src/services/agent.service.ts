@@ -2,11 +2,15 @@ import { GoogleGenAI, Type, type Content, type Tool } from "@google/genai";
 import { env } from "../config/env.js";
 import { validarDtPesquisa } from "../utils/date.util.js";
 import { buildSystemPrompt } from "./prompt.js";
-import * as zarya from "./zarya.service.js";
-import * as analytics from "./portfolioAnalytics.service.js";
-import * as cache from "./cache.service.js";
-import { normalizeAll } from "./normalize.js";
+import * as portfolio from "./portfolio.service.js";
 import type { ChatMessage, PortfolioSummary } from "../types/portfolio.types.js";
+
+/** Contexto do painel: carteira e data selecionadas pelo usuário na interface. */
+export interface AgentContext {
+  idCarteira?: number;
+  noResumido?: string;
+  dtPesquisa?: string;
+}
 
 const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
@@ -59,13 +63,19 @@ function toContents(history: ChatMessage[]): Content[] {
 }
 
 /** Executa a ferramenta de verdade: valida data -> cache -> Zarya -> analytics. */
-async function executarFerramenta(args: Record<string, unknown>): Promise<{
+async function executarFerramenta(
+  args: Record<string, unknown>,
+  ctx?: AgentContext,
+): Promise<{
   resultParaLLM: unknown;
   data: AgentResult["data"];
   cacheHit: boolean;
 }> {
-  const dtPesquisa = typeof args.dtPesquisa === "string" ? args.dtPesquisa : undefined;
-  const idCarteira = typeof args.idCarteira === "number" ? args.idCarteira : 0;
+  // Se a LLM não extrair a data/carteira, usa o que está selecionado no painel.
+  const dtPesquisa =
+    typeof args.dtPesquisa === "string" ? args.dtPesquisa : ctx?.dtPesquisa;
+  const idCarteira =
+    typeof args.idCarteira === "number" ? args.idCarteira : ctx?.idCarteira ?? 0;
 
   const check = validarDtPesquisa(dtPesquisa);
   if (!check.ok) {
@@ -82,18 +92,7 @@ async function executarFerramenta(args: Record<string, unknown>): Promise<{
     };
   }
 
-  const key = `comp:${check.value}:${idCarteira}`;
-  let normalized = await cache.get<ReturnType<typeof normalizeAll>>(key);
-  let cacheHit = true;
-
-  if (!normalized) {
-    cacheHit = false;
-    const raw = await zarya.buscaComposicao({ dtPesquisa: check.value, idCarteira });
-    normalized = normalizeAll(raw.Object);
-    await cache.set(key, normalized, env.CACHE_TTL_SECONDS);
-  }
-
-  const summary = analytics.buildSummary(normalized);
+  const { summary, cacheHit } = await portfolio.getSummary(check.value, idCarteira);
 
   // Curto-circuito: carteira vazia para a data -> não há o que narrar.
   const semDados = summary.quantidadePosicoes === 0;
@@ -112,8 +111,8 @@ async function executarFerramenta(args: Record<string, unknown>): Promise<{
  * Decide (via function calling) se conversa ou consulta a carteira, executa a
  * ferramenta no backend e devolve a narração + os dados calculados.
  */
-export async function runTurn(history: ChatMessage[]): Promise<AgentResult> {
-  const systemInstruction = buildSystemPrompt(new Date());
+export async function runTurn(history: ChatMessage[], ctx?: AgentContext): Promise<AgentResult> {
+  const systemInstruction = buildSystemPrompt(new Date(), ctx);
   const contents = toContents(history);
 
   let toolUsed = false;
@@ -137,7 +136,7 @@ export async function runTurn(history: ChatMessage[]): Promise<AgentResult> {
     }
 
     toolUsed = true;
-    const exec = await executarFerramenta(fc.args ?? {});
+    const exec = await executarFerramenta(fc.args ?? {}, ctx);
     if (exec.data) data = exec.data;
     cacheHit = exec.cacheHit;
 

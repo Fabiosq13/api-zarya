@@ -19,14 +19,69 @@ npm run build && npm start # produção
 
 Scripts: `dev`, `build`, `start`, `typecheck`, `test`.
 
-## Endpoint
+## Interface web (`web/`)
 
-`POST /api/v1/portfolio/chat`
+Há um frontend em **React + Vite + Tailwind + shadcn-style + Framer Motion** na pasta `web/`.
+Ele permite **selecionar a carteira** (campo `no_Resumido`) e a **data**, exibe **indicadores e
+gráficos** e traz um **assistente Gemini** que conversa e **atualiza o painel** quando faz novas buscas.
+
+```bash
+cd web
+cp .env.example .env       # opcional; em dev o proxy do Vite já aponta /api -> :3000
+npm install
+npm run dev                # http://localhost:5173 (proxy /api -> http://localhost:3000)
+npm run build              # gera dist/ estático
+```
+
+> Rode o backend (`npm run dev` na raiz) junto. Para o chat funcionar, preencha `GEMINI_API_KEY`.
+
+## Endpoints
+
+### `GET /api/v1/portfolio/carteiras`
+
+Lista as carteiras (tipos) para o seletor — usado no **preload** da interface. Deriva os valores
+distintos de `{nu_Portfolio, no_Resumido}` da composição geral (`id_Carteira=0`). Se a data não
+tiver dados, procura alguns dias para trás (`PORTFOLIO_LOOKBACK_DAYS`) e, em último caso, usa
+`PORTFOLIO_DEFAULT_DATE`.
+
+Query opcional: `?dtPesquisa=YYYY-MM-DD`.
+
+```json
+{
+  "dtPesquisa": "2025-06-05",
+  "carteiras": [
+    { "idCarteira": 39, "noResumido": "FUNDO ZARYA FIM", "valorTotal": 3283862.42, "quantidadePosicoes": 7 }
+  ]
+}
+```
+
+### `GET /api/v1/portfolio/summary`
+
+Indicadores e dados de gráfico de uma carteira/data (sem passar pela LLM).
+
+Query: `?dtPesquisa=YYYY-MM-DD&idCarteira=0`.
+
+```json
+{ "dtPesquisa": "2025-06-05", "idCarteira": 31, "summary": { }, "meta": { "cacheHit": false } }
+```
+
+### `POST /api/v1/portfolio/chat`
 
 Modo **stateful** (recomendado) — o backend guarda o histórico por `conversationId`:
 
 ```json
 { "conversationId": "c_123", "message": "como estava a carteira em 5 de junho?" }
+```
+
+Opcionalmente envie o **contexto do painel** para a IA usar a carteira/data já selecionadas
+por padrão (e atualizar os gráficos ao buscar):
+
+```json
+{
+  "conversationId": "c_123",
+  "message": "resuma essa carteira",
+  "context": { "idCarteira": 31, "noResumido": "Carteira Administrada Zarya", "dtPesquisa": "2025-06-05" }
+}
 ```
 
 Modo **stateless** — o cliente envia o histórico completo:

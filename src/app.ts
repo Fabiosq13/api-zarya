@@ -1,5 +1,6 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import helmet from "@fastify/helmet";
+import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import { env } from "./config/env.js";
 import { portfolioRoutes } from "./routes/portfolio.routes.js";
@@ -15,6 +16,16 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   await app.register(helmet);
+
+  const corsOrigin =
+    env.CORS_ORIGIN === "*"
+      ? true
+      : env.CORS_ORIGIN.split(",").map((o) => o.trim()).filter(Boolean);
+  await app.register(cors, {
+    origin: corsOrigin,
+    methods: ["GET", "POST", "OPTIONS"],
+  });
+
   await app.register(rateLimit, {
     max: env.RATE_LIMIT_MAX,
     timeWindow: "1 minute",

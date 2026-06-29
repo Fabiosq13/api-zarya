@@ -37,7 +37,7 @@ export function buildSummary(positions: NormalizedPosition[]): PortfolioSummary 
   const porClasse = groupAndRank(positions, (p) => p.noClasse, (p) => p.vlEstoque, totalBruto);
   const porFamilia = groupAndRank(positions, (p) => p.noFamiliaProduto, (p) => p.vlEstoque, totalBruto);
   const porAtivo = groupAndRank(positions, (p) => p.noAtivo, (p) => p.vlEstoque, totalBruto);
-  const porCarteira = groupAndRank(positions, (p) => `Carteira ${p.nuPortfolio}`, (p) => p.vlEstoque, totalBruto);
+  const porCarteira = groupAndRank(positions, (p) => p.noResumido, (p) => p.vlEstoque, totalBruto);
 
   const maioresPosicoes = porAtivo.slice(0, 10);
 

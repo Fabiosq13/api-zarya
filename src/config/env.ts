@@ -21,6 +21,15 @@ const schema = z.object({
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(60),
   LOG_LEVEL: z.string().default("info"),
 
+  // CORS: origens permitidas para o front (separadas por vírgula). "*" libera todas.
+  CORS_ORIGIN: z.string().default("*"),
+
+  // Portfólio
+  // Data padrão usada no preload quando a data pedida não tem dados.
+  PORTFOLIO_DEFAULT_DATE: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).default("2025-06-05"),
+  // Quantos dias andar para trás procurando uma data com posições.
+  PORTFOLIO_LOOKBACK_DAYS: z.coerce.number().int().min(0).max(31).default(7),
+
   // Conversas (Redis)
   // Se REDIS_URL não for definida, o histórico cai para memória (útil em dev local).
   REDIS_URL: z.string().min(1).optional(),
