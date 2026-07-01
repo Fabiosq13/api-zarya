@@ -125,7 +125,7 @@ export default function App() {
     return (
       <div
         className="flex min-h-screen items-center justify-center"
-        style={{ background: "linear-gradient(135deg, hsl(232 74% 52%), hsl(248 70% 56%))" }}
+        style={{ background: "#0D1B2A" }}
       >
         <Loader2 className="h-7 w-7 animate-spin text-white" />
       </div>
