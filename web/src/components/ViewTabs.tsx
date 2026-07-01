@@ -29,7 +29,7 @@ export function ViewTabs({ value, onChange, count }: Props) {
               className={cn(
                 "inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-all",
                 active
-                  ? "bg-primary text-white shadow-sm"
+                  ? "bg-[#0D1B2A] text-white shadow-sm"
                   : "text-muted-foreground hover:bg-[hsl(220_24%_96%)] hover:text-ink",
               )}
             >
