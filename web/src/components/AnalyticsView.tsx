@@ -240,7 +240,7 @@ function SignedBarCard({
 function TaxCard({ summary }: { summary: PortfolioSummary }) {
   const total = summary.irrfTotal + summary.iofTotal;
   const parts = [
-    { label: "IRRF", value: summary.irrfTotal, color: "#3A57E8" },
+    { label: "IRRF", value: summary.irrfTotal, color: "#2979FF" },
     { label: "IOF", value: summary.iofTotal, color: "#C98A12" },
   ];
   return (

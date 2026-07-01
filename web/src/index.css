@@ -18,9 +18,9 @@
     --border-strong: 220 14% 84%;
 
     /* Acento corporativo */
-    --primary: 230 78% 57%;
+    --primary: 218 100% 58%;   /* #2979FF (azul da marca) */
     --primary-foreground: 0 0% 100%;
-    --ring: 230 78% 57%;
+    --ring: 218 100% 58%;
 
     /* Semânticos */
     --gain: 154 64% 35%;
