@@ -228,6 +228,9 @@ export default function App() {
         ) : (
           <>
             <ModeToggle value={modo} onChange={setModo} />
+            {modo === "passivos" && (
+              <CotistaSelector cotistas={cotistas} value={idCotista} onChange={setIdCotista} />
+            )}
             {modo === "ativos" ? (
               <WalletSelector carteiras={carteiras} value={idCarteira} onChange={setIdCarteira} />
             ) : (
@@ -238,9 +241,6 @@ export default function App() {
               />
             )}
             <DateSelector value={dtPesquisa} onChange={setDtPesquisa} />
-            {modo === "passivos" && (
-              <CotistaSelector cotistas={cotistas} value={idCotista} onChange={setIdCotista} />
-            )}
           </>
         )}
       </Header>
