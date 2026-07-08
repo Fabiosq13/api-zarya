@@ -2,6 +2,8 @@ import type {
   CarteirasResponse,
   ChatContext,
   ChatResponse,
+  CotistasResponse,
+  PassivoSummaryResponse,
   SummaryResponse,
 } from "@/types";
 
@@ -78,6 +80,27 @@ export function fetchSummary(
 ): Promise<SummaryResponse> {
   return request<SummaryResponse>(
     `/api/v1/portfolio/summary?dtPesquisa=${dtPesquisa}&idCarteira=${idCarteira}`,
+  );
+}
+
+export function fetchPassivoCarteiras(dtPesquisa?: string): Promise<CarteirasResponse> {
+  const qs = dtPesquisa ? `?dtPesquisa=${dtPesquisa}` : "";
+  return request<CarteirasResponse>(`/api/v1/portfolio/passivo/carteiras${qs}`);
+}
+
+export function fetchCotistas(dtPesquisa: string, idCarteira: number): Promise<CotistasResponse> {
+  return request<CotistasResponse>(
+    `/api/v1/portfolio/passivo/cotistas?dtPesquisa=${dtPesquisa}&idCarteira=${idCarteira}`,
+  );
+}
+
+export function fetchPassivoSummary(
+  dtPesquisa: string,
+  idCarteira: number,
+  idCotista: number,
+): Promise<PassivoSummaryResponse> {
+  return request<PassivoSummaryResponse>(
+    `/api/v1/portfolio/passivo/summary?dtPesquisa=${dtPesquisa}&idCarteira=${idCarteira}&idCotista=${idCotista}`,
   );
 }
 

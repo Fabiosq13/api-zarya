@@ -48,7 +48,22 @@ export const summaryQuerySchema = z.object({
   idCarteira: z.coerce.number().int().min(0).default(0),
 });
 
+/** Query do GET /api/v1/portfolio/passivo/summary. */
+export const passivoSummaryQuerySchema = z.object({
+  dtPesquisa: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "dtPesquisa deve ser YYYY-MM-DD"),
+  idCarteira: z.coerce.number().int().min(0).default(0),
+  idCotista: z.coerce.number().int().min(0).default(0),
+});
+
+/** Query do GET /api/v1/portfolio/passivo/cotistas. */
+export const cotistasQuerySchema = z.object({
+  dtPesquisa: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "dtPesquisa deve ser YYYY-MM-DD"),
+  idCarteira: z.coerce.number().int().min(0).default(0),
+});
+
 export type ChatBody = z.infer<typeof chatBodySchema>;
 export type ChatMessageInput = z.infer<typeof chatMessageSchema>;
 export type CarteirasQuery = z.infer<typeof carteirasQuerySchema>;
 export type SummaryQuery = z.infer<typeof summaryQuerySchema>;
+export type PassivoSummaryQuery = z.infer<typeof passivoSummaryQuerySchema>;
+export type CotistasQuery = z.infer<typeof cotistasQuerySchema>;

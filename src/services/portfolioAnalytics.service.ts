@@ -4,6 +4,9 @@ import type {
   GroupedItem,
   VencimentoItem,
   DetailedPosition,
+  NormalizedPassivoPosition,
+  PassivoSummary,
+  DetailedPassivoPosition,
 } from "../types/portfolio.types.js";
 import { pct, round2 } from "../utils/number.util.js";
 
@@ -96,4 +99,33 @@ export function buildDetailedPositions(positions: NormalizedPosition[]): Detaile
       diasParaVencimento: p.diasParaVencimento,
     }))
     .sort((a, b) => b.valor - a.valor);
+}
+
+/** Agregacoes deterministicas de uma composicao de PASSIVO (posicoes por cotista). */
+export function buildPassivoSummary(positions: NormalizedPassivoPosition[]): PassivoSummary {
+  return {
+    valorBrutoTotal: sum(positions, (p) => p.vlBruto),
+    valorLiquidoTotal: sum(positions, (p) => p.vlLiquido),
+    rendimentoTotal: sum(positions, (p) => p.vlRendimento),
+    irrfTotal: sum(positions, (p) => p.vlIRRF),
+    iofTotal: sum(positions, (p) => p.vlIOF),
+    quantidadeCotistas: new Set(positions.map((p) => p.nuCotista)).size,
+    quantidadePosicoes: positions.length,
+  };
+}
+
+/** Lista de posicoes por cotista para a visao detalhada (ordenada por valor bruto desc). */
+export function buildDetailedPassivoPositions(positions: NormalizedPassivoPosition[]): DetailedPassivoPosition[] {
+  const total = sum(positions, (p) => p.vlBruto);
+  return positions
+    .map((p) => ({
+      cotista: p.noCotista,
+      carteira: p.noResumido,
+      quantidade: round2(p.qtEstoque),
+      valorBruto: round2(p.vlBruto),
+      valorLiquido: round2(p.vlLiquido),
+      rendimento: round2(p.vlRendimento),
+      percentual: pct(p.vlBruto, total),
+    }))
+    .sort((a, b) => b.valorBruto - a.valorBruto);
 }

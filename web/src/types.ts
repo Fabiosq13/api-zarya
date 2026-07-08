@@ -96,3 +96,41 @@ export interface ChatContext {
   noResumido?: string;
   dtPesquisa?: string;
 }
+
+export interface PassivoSummary {
+  valorBrutoTotal: number;
+  valorLiquidoTotal: number;
+  rendimentoTotal: number;
+  irrfTotal: number;
+  iofTotal: number;
+  quantidadeCotistas: number;
+  quantidadePosicoes: number;
+}
+
+export interface DetailedPassivoPosition {
+  cotista: string;
+  carteira: string;
+  quantidade: number;
+  valorBruto: number;
+  valorLiquido: number;
+  rendimento: number;
+  percentual: number;
+}
+
+export interface CotistaItem {
+  idCotista: number;
+  nome: string;
+}
+
+export interface CotistasResponse {
+  cotistas: CotistaItem[];
+}
+
+export interface PassivoSummaryResponse {
+  dtPesquisa: string;
+  idCarteira: number;
+  idCotista: number;
+  summary: PassivoSummary;
+  posicoes: DetailedPassivoPosition[];
+  meta: { cacheHit: boolean };
+}
