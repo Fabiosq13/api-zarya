@@ -103,14 +103,24 @@ export function buildDetailedPositions(positions: NormalizedPosition[]): Detaile
 
 /** Agregacoes deterministicas de uma composicao de PASSIVO (posicoes por cotista). */
 export function buildPassivoSummary(positions: NormalizedPassivoPosition[]): PassivoSummary {
+  const valorBrutoTotal = sum(positions, (p) => p.vlBruto);
+
   return {
-    valorBrutoTotal: sum(positions, (p) => p.vlBruto),
+    valorBrutoTotal,
     valorLiquidoTotal: sum(positions, (p) => p.vlLiquido),
     rendimentoTotal: sum(positions, (p) => p.vlRendimento),
     irrfTotal: sum(positions, (p) => p.vlIRRF),
     iofTotal: sum(positions, (p) => p.vlIOF),
+    aplicadoTotal: sum(positions, (p) => p.vlAplicado),
+    resgatadoTotal: sum(positions, (p) => p.vlResgatado),
+    comeCotasTotal: sum(positions, (p) => p.vlComeCotas),
     quantidadeCotistas: new Set(positions.map((p) => p.nuCotista)).size,
     quantidadePosicoes: positions.length,
+    porTributacao: groupAndRank(positions, (p) => p.noTributacaoFundo, (p) => p.vlBruto, valorBrutoTotal),
+    porTipoPessoa: groupAndRank(positions, (p) => p.tpPessoa, (p) => p.vlBruto, valorBrutoTotal),
+    porGrupoFamiliar: groupAndRank(positions, (p) => p.noGrupoFamiliar, (p) => p.vlBruto, valorBrutoTotal),
+    porTipoInvestidor: groupAndRank(positions, (p) => p.noTipoInvestidor, (p) => p.vlBruto, valorBrutoTotal),
+    maioresCotistas: groupAndRank(positions, (p) => p.noCotista, (p) => p.vlBruto, valorBrutoTotal).slice(0, 10),
   };
 }
 

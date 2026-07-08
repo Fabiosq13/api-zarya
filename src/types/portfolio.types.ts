@@ -112,6 +112,15 @@ export interface NormalizedPassivoPosition {
   vlIRRF: number;
   vlIOF: number;
 
+  tpPessoa: string;
+  noTributacaoFundo: string;
+  noGrupoFamiliar: string;
+  noTipoInvestidor: string;
+  vlAplicado: number;
+  vlResgatado: number;
+  vlComeCotas: number;
+  qtBloqueada: number;
+
   dtEstoque: string | null;
 }
 
@@ -132,8 +141,16 @@ export interface PassivoSummary {
   rendimentoTotal: number;
   irrfTotal: number;
   iofTotal: number;
+  aplicadoTotal: number;
+  resgatadoTotal: number;
+  comeCotasTotal: number;
   quantidadeCotistas: number;
   quantidadePosicoes: number;
+  porTributacao: GroupedItem[];
+  porTipoPessoa: GroupedItem[];
+  porGrupoFamiliar: GroupedItem[];
+  porTipoInvestidor: GroupedItem[];
+  maioresCotistas: GroupedItem[];
 }
 
 /** Item da lista de cotistas selecionaveis no filtro da tela de passivos. */

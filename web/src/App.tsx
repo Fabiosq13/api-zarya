@@ -132,7 +132,6 @@ export default function App() {
 
   useEffect(() => {
     if (modo !== "passivos" || idCarteiraPassivo == null || !dtPesquisa) return;
-    setIdCotista(0);
     fetchCotistas(dtPesquisa, idCarteiraPassivo)
       .then((res) => setCotistas(res.cotistas))
       .catch((e) => setError(e instanceof Error ? e.message : "Falha ao carregar cotistas"));
@@ -162,13 +161,25 @@ export default function App() {
 
   const handleChatData = useCallback(
     (data: ChatData) => {
+      if (data.modo === "passivos") {
+        setPassivoSummary(data.summary);
+        if (data.dtPesquisa) setDtPesquisa(data.dtPesquisa);
+        if (
+          data.idCarteira != null &&
+          passivoCarteiras.some((c) => c.idCarteira === data.idCarteira)
+        ) {
+          setIdCarteiraPassivo(data.idCarteira);
+        }
+        if (data.idCotista != null) setIdCotista(data.idCotista);
+        return;
+      }
       setSummary(data.summary);
       if (data.dtPesquisa) setDtPesquisa(data.dtPesquisa);
       if (data.idCarteira != null && carteiras.some((c) => c.idCarteira === data.idCarteira)) {
         setIdCarteira(data.idCarteira);
       }
     },
-    [carteiras],
+    [carteiras, passivoCarteiras],
   );
 
   const handleUi = useCallback((ui: UiActions) => {
@@ -180,6 +191,16 @@ export default function App() {
       if (!ui.aba) setView("posicoes");
     }
   }, []);
+
+  function handleDateChange(d: string) {
+    setDtPesquisa(d);
+    if (modo === "passivos") setIdCotista(0);
+  }
+
+  function handleCarteiraPassivoChange(id: number) {
+    setIdCarteiraPassivo(id);
+    setIdCotista(0);
+  }
 
   const carteiraAtual = carteiras.find((c) => c.idCarteira === idCarteira);
   const semDados = summary && summary.quantidadePosicoes === 0;
@@ -237,10 +258,10 @@ export default function App() {
               <WalletSelector
                 carteiras={passivoCarteiras}
                 value={idCarteiraPassivo}
-                onChange={setIdCarteiraPassivo}
+                onChange={handleCarteiraPassivoChange}
               />
             )}
-            <DateSelector value={dtPesquisa} onChange={setDtPesquisa} />
+            <DateSelector value={dtPesquisa} onChange={handleDateChange} />
           </>
         )}
       </Header>
@@ -313,7 +334,19 @@ export default function App() {
 
           <aside className="h-[560px] min-h-0 xl:h-auto">
             <ChatPanel
-              context={{ idCarteira, noResumido: carteiraAtual?.noResumido, dtPesquisa }}
+              context={
+                modo === "passivos"
+                  ? {
+                      modo: "passivos",
+                      idCarteira: idCarteiraPassivo,
+                      noResumido: passivoCarteiras.find((c) => c.idCarteira === idCarteiraPassivo)
+                        ?.noResumido,
+                      dtPesquisa,
+                      idCotista,
+                      noCotista: cotistas.find((c) => c.idCotista === idCotista)?.nome,
+                    }
+                  : { modo: "ativos", idCarteira, noResumido: carteiraAtual?.noResumido, dtPesquisa }
+              }
               onData={handleChatData}
               onUi={handleUi}
             />

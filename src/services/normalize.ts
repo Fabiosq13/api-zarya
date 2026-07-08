@@ -60,6 +60,15 @@ export function normalizePassivoPosition(raw: ZaryaPassivoPosition): NormalizedP
     vlIRRF: toNumber(raw.vl_IRRF),
     vlIOF: toNumber(raw.vl_IOF),
 
+    tpPessoa: raw.tp_Pessoa?.trim() || "Não identificado",
+    noTributacaoFundo: raw.no_Tributacao_Fundo?.trim() || "Não classificado",
+    noGrupoFamiliar: raw.no_Grupo_Familiar?.trim() || "Não classificado",
+    noTipoInvestidor: raw.no_Tipo_Investidor?.trim() || "Não classificado",
+    vlAplicado: toNumber(raw.vl_Aplicado),
+    vlResgatado: toNumber(raw.vl_Resgatado),
+    vlComeCotas: toNumber(raw.vl_Come_Cotas),
+    qtBloqueada: toNumber(raw.qt_Bloqueada),
+
     dtEstoque,
   };
 }

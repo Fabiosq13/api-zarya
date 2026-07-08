@@ -3,13 +3,16 @@ import { env } from "../config/env.js";
 import { validarDtPesquisa } from "../utils/date.util.js";
 import { buildSystemPrompt } from "./prompt.js";
 import * as portfolio from "./portfolio.service.js";
-import type { ChatMessage, PortfolioSummary } from "../types/portfolio.types.js";
+import type { ChatMessage, PassivoSummary, PortfolioSummary } from "../types/portfolio.types.js";
 
 /** Contexto do painel: carteira e data selecionadas pelo usuário na interface. */
 export interface AgentContext {
+  modo?: "ativos" | "passivos";
   idCarteira?: number;
   noResumido?: string;
   dtPesquisa?: string;
+  idCotista?: number;
+  noCotista?: string;
 }
 
 /** Ações de interface que a IA pode disparar (aplicadas no front). */
@@ -23,6 +26,7 @@ const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
 const TOOL_DADOS = "consultarComposicaoCarteira";
 const TOOL_UI = "controlarInterface";
+const TOOL_DADOS_PASSIVO = "consultarPosicaoPassivo";
 const MAX_ITERATIONS = 5; // proteção contra loop de tool calls
 
 const tools: Tool[] = [
@@ -91,10 +95,55 @@ const tools: Tool[] = [
   },
 ];
 
+const passivoTools: Tool[] = [
+  {
+    functionDeclarations: [
+      {
+        name: TOOL_DADOS_PASSIVO,
+        description:
+          "Busca a posição de passivo (cotistas) de um fundo em uma data específica e retorna " +
+          "totais de valor bruto, líquido, rendimento, IRRF e IOF. Use quando o usuário pedir " +
+          "dados reais de cotistas (posição, valor, rendimento, tributos), ou quando precisar " +
+          "trocar o fundo/cotista/data exibidos no painel. NÃO use em saudações ou perguntas " +
+          "conceituais. Se o usuário pedir dados mas não informar a data e ela não puder ser " +
+          "inferida do contexto, NÃO chame esta função — pergunte a data a ele.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            dtPesquisa: {
+              type: Type.STRING,
+              description: "Data da posição no formato YYYY-MM-DD, extraída da conversa.",
+            },
+            idCarteira: {
+              type: Type.INTEGER,
+              description: "ID do fundo (carteira de passivo). Use 0 para a visão geral (padrão).",
+            },
+            idCotista: {
+              type: Type.INTEGER,
+              description: "ID do cotista, quando já conhecido. Use 0 para todos os cotistas (padrão).",
+            },
+            nomeCotista: {
+              type: Type.STRING,
+              description:
+                "Nome (ou parte do nome) do cotista, quando o usuário citar por nome em vez de ID. " +
+                "Use este campo em vez de idCotista sempre que o usuário disser um nome — a busca " +
+                "pelo ID correspondente é feita no backend.",
+            },
+          },
+          required: ["dtPesquisa"],
+        },
+      },
+    ],
+  },
+];
+
 export interface AgentResult {
   answer: string;
   toolUsed: boolean;
-  data: { dtPesquisa: string; idCarteira: number; summary: PortfolioSummary } | null;
+  data:
+    | { modo: "ativos"; dtPesquisa: string; idCarteira: number; summary: PortfolioSummary }
+    | { modo: "passivos"; dtPesquisa: string; idCarteira: number; idCotista: number; summary: PassivoSummary }
+    | null;
   ui: UiActions | null;
   cacheHit: boolean;
   history: ChatMessage[];
@@ -136,7 +185,67 @@ async function executarConsulta(
     resultParaLLM: semDados
       ? { aviso: "sem_dados", mensagem: "Não há posições para esta data/carteira." }
       : summary,
-    data: { dtPesquisa: check.value, idCarteira, summary },
+    data: { modo: "ativos", dtPesquisa: check.value, idCarteira, summary },
+    cacheHit,
+  };
+}
+
+/** Executa a consulta de posição de passivo: valida data -> cache -> Zarya -> analytics. */
+async function executarConsultaPassivo(
+  args: Record<string, unknown>,
+  ctx?: AgentContext,
+): Promise<{ resultParaLLM: unknown; data: AgentResult["data"]; cacheHit: boolean }> {
+  const dtPesquisa = typeof args.dtPesquisa === "string" ? args.dtPesquisa : ctx?.dtPesquisa;
+  const idCarteira =
+    typeof args.idCarteira === "number" ? args.idCarteira : ctx?.idCarteira ?? 0;
+
+  const check = validarDtPesquisa(dtPesquisa);
+  if (!check.ok) {
+    return {
+      resultParaLLM: {
+        erro: "data_invalida",
+        motivo: check.motivo,
+        instrucao:
+          "A data não pôde ser usada. Peça ao usuário, de forma educada, qual data ele deseja " +
+          "para a posição de passivo (ex.: 2025-06-05).",
+      },
+      data: null,
+      cacheHit: false,
+    };
+  }
+
+  let idCotista = typeof args.idCotista === "number" ? args.idCotista : ctx?.idCotista ?? 0;
+
+  const nomeCotista = typeof args.nomeCotista === "string" ? args.nomeCotista.trim() : "";
+  if (nomeCotista) {
+    const { cotistas } = await portfolio.listCotistas(check.value, idCarteira);
+    const termo = nomeCotista.toLowerCase();
+    const encontrado = cotistas.find((c) => c.nome.toLowerCase().includes(termo));
+    if (!encontrado) {
+      return {
+        resultParaLLM: {
+          erro: "cotista_nao_encontrado",
+          nomeBuscado: nomeCotista,
+          cotistasDisponiveis: cotistas.map((c) => c.nome),
+          instrucao:
+            "Nenhum cotista com esse nome foi encontrado neste fundo/data. Informe ao usuário e, " +
+            "se útil, sugira nomes da lista disponível.",
+        },
+        data: null,
+        cacheHit: false,
+      };
+    }
+    idCotista = encontrado.idCotista;
+  }
+
+  const { summary, cacheHit } = await portfolio.getPassivoSummary(check.value, idCarteira, idCotista);
+  const semDados = summary.quantidadePosicoes === 0;
+
+  return {
+    resultParaLLM: semDados
+      ? { aviso: "sem_dados", mensagem: "Não há posições de passivo para esta data/fundo/cotista." }
+      : summary,
+    data: { modo: "passivos", dtPesquisa: check.value, idCarteira, idCotista, summary },
     cacheHit,
   };
 }
@@ -170,6 +279,7 @@ function executarUi(args: Record<string, unknown>): {
 export async function runTurn(history: ChatMessage[], ctx?: AgentContext): Promise<AgentResult> {
   const systemInstruction = buildSystemPrompt(new Date(), ctx);
   const contents = toContents(history);
+  const activeTools = ctx?.modo === "passivos" ? passivoTools : tools;
 
   let toolUsed = false;
   let cacheHit = false;
@@ -179,7 +289,7 @@ export async function runTurn(history: ChatMessage[], ctx?: AgentContext): Promi
   for (let i = 0; i < MAX_ITERATIONS; i++) {
     const res = await ai.models.generateContent({
       model: env.GEMINI_MODEL,
-      config: { systemInstruction, temperature: 0.2, tools },
+      config: { systemInstruction, temperature: 0.2, tools: activeTools },
       contents,
     });
 
@@ -208,6 +318,13 @@ export async function runTurn(history: ChatMessage[], ctx?: AgentContext): Promi
         cacheHit = exec.cacheHit;
         parts.push({
           functionResponse: { name: TOOL_DADOS, response: exec.resultParaLLM as Record<string, unknown> },
+        });
+      } else if (fc.name === TOOL_DADOS_PASSIVO) {
+        const exec = await executarConsultaPassivo(fc.args ?? {}, ctx);
+        if (exec.data) data = exec.data;
+        cacheHit = exec.cacheHit;
+        parts.push({
+          functionResponse: { name: TOOL_DADOS_PASSIVO, response: exec.resultParaLLM as Record<string, unknown> },
         });
       } else if (fc.name === TOOL_UI) {
         const exec = executarUi(fc.args ?? {});

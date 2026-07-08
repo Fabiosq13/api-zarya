@@ -15,12 +15,15 @@ export const chatMessageSchema = z.object({
  */
 /** Contexto opcional do painel: carteira e data atualmente selecionadas. */
 export const chatContextSchema = z.object({
+  modo: z.enum(["ativos", "passivos"]).optional(),
   idCarteira: z.coerce.number().int().min(0).optional(),
   noResumido: z.string().min(1).max(200).optional(),
   dtPesquisa: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional(),
+  idCotista: z.coerce.number().int().min(0).optional(),
+  noCotista: z.string().min(1).max(200).optional(),
 });
 
 export const chatBodySchema = z
