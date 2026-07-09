@@ -137,10 +137,13 @@ export async function getPassivoSummary(
   posicoes: DetailedPassivoPosition[];
   cacheHit: boolean;
 }> {
-  const { positions, cacheHit } = await loadPassivoComposition(dtPesquisa, idCarteira, idCotista);
+  const { positions: todasPosicoes, cacheHit } = await loadPassivoComposition(dtPesquisa, idCarteira, 0);
+  const totalFundoBruto = todasPosicoes.reduce((acc, p) => acc + (p.vlBruto || 0), 0);
+  const positions = idCotista ? todasPosicoes.filter((p) => p.nuCotista === idCotista) : todasPosicoes;
+
   return {
     summary: analytics.buildPassivoSummary(positions),
-    posicoes: analytics.buildDetailedPassivoPositions(positions),
+    posicoes: analytics.buildDetailedPassivoPositions(positions, totalFundoBruto),
     cacheHit,
   };
 }

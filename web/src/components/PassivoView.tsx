@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUp, Search, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatBRL, formatPct } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { PassivoSummaryHero } from "@/components/PassivoSummaryHero";
 import { PassivoDonutAllocation } from "@/components/PassivoDonutAllocation";
 import { PassivoTopCotistas } from "@/components/PassivoTopCotistas";
 import { PassivoFluxoCard } from "@/components/PassivoFluxoCard";
@@ -22,9 +23,11 @@ const COLS: { key: SortKey; label: string; align: "left" | "right" }[] = [
 export function PassivoView({
   summary,
   posicoes,
+  dtPesquisa,
 }: {
   summary: PassivoSummary;
   posicoes: DetailedPassivoPosition[];
+  dtPesquisa: string;
 }) {
   const [view, setView] = useState<PassivoViewKey>("geral");
   const [q, setQ] = useState("");
@@ -54,37 +57,11 @@ export function PassivoView({
     }
   }
 
-  const cards = [
-    { label: "Valor bruto", value: formatBRL(summary.valorBrutoTotal), tone: "text-ink" },
-    { label: "Valor líquido", value: formatBRL(summary.valorLiquidoTotal), tone: "text-ink" },
-    {
-      label: "Rendimento",
-      value: formatBRL(summary.rendimentoTotal),
-      tone: summary.rendimentoTotal >= 0 ? "text-gain" : "text-loss",
-    },
-    { label: "IRRF", value: formatBRL(summary.irrfTotal), tone: "text-ink" },
-    { label: "IOF", value: formatBRL(summary.iofTotal), tone: "text-ink" },
-  ];
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <Card className="fade-up shrink-0 overflow-hidden rounded-[var(--radius)]">
-        <div className="grid grid-cols-2 sm:grid-cols-5">
-          {cards.map((c, i) => (
-            <div
-              key={c.label}
-              className={cn("p-4", i > 0 && "border-t border-border sm:border-t-0 sm:border-l")}
-            >
-              <p className="text-[0.72rem] font-medium leading-tight text-muted-foreground">{c.label}</p>
-              <p className={cn("num mt-1.5 text-base font-extrabold tracking-tight sm:text-lg", c.tone)}>
-                {c.value}
-              </p>
-            </div>
-          ))}
-        </div>
-      </Card>
-
       <PassivoViewTabs value={view} onChange={setView} count={rows.length} />
+
+      <PassivoSummaryHero summary={summary} dtPesquisa={dtPesquisa} />
 
       {view === "geral" && (
         <div className="min-h-0 flex-1 space-y-4 overflow-auto pr-0.5">

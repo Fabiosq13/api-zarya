@@ -1,11 +1,11 @@
-import { ArrowLeftRight, Receipt } from "lucide-react";
+import { ArrowLeftRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatBRL } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { PassivoSummary } from "@/types";
 
 export function PassivoFluxoCard({ summary }: { summary: PassivoSummary }) {
-  const { aplicadoTotal, resgatadoTotal, comeCotasTotal } = summary;
+  const { aplicadoTotal, resgatadoTotal } = summary;
   const max = Math.max(aplicadoTotal, resgatadoTotal, 1);
   const net = aplicadoTotal - resgatadoTotal;
 
@@ -37,7 +37,7 @@ export function PassivoFluxoCard({ summary }: { summary: PassivoSummary }) {
             <div className="h-2 w-full overflow-hidden rounded-full bg-[hsl(220_18%_93%)]">
               <div
                 className="h-full rounded-full bg-gain"
-                style={{ width: `${Math.max(2, (aplicadoTotal / max) * 100)}%`, animation: "growBar .6s cubic-bezier(.16,1,.3,1) both" }}
+                style={{ width: `${aplicadoTotal > 0 ? Math.max(2, (aplicadoTotal / max) * 100) : 0}%`, animation: "growBar .6s cubic-bezier(.16,1,.3,1) both" }}
               />
             </div>
           </div>
@@ -49,18 +49,10 @@ export function PassivoFluxoCard({ summary }: { summary: PassivoSummary }) {
             <div className="h-2 w-full overflow-hidden rounded-full bg-[hsl(220_18%_93%)]">
               <div
                 className="h-full rounded-full bg-loss"
-                style={{ width: `${Math.max(2, (resgatadoTotal / max) * 100)}%`, animation: "growBar .6s cubic-bezier(.16,1,.3,1) both" }}
+                style={{ width: `${resgatadoTotal > 0 ? Math.max(2, (resgatadoTotal / max) * 100) : 0}%`, animation: "growBar .6s cubic-bezier(.16,1,.3,1) both" }}
               />
             </div>
           </div>
-        </div>
-
-        <div className="mt-5 flex items-center justify-between gap-3 rounded-lg border border-border bg-[hsl(220_30%_98.5%)] px-3.5 py-3">
-          <span className="flex items-center gap-2 text-sm font-medium text-ink/90">
-            <Receipt className="h-3.5 w-3.5 text-gold" />
-            Come-cotas (IR antecipado)
-          </span>
-          <span className="num text-sm font-bold">{formatBRL(comeCotasTotal)}</span>
         </div>
       </div>
     </Card>

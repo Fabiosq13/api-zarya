@@ -326,6 +326,7 @@ export default function App() {
                     key={`${idCarteiraPassivo}-${dtPesquisa}-${idCotista}`}
                     summary={passivoSummary}
                     posicoes={passivoPosicoes}
+                    dtPesquisa={dtPesquisa}
                   />
                 ) : null}
               </>

@@ -125,8 +125,11 @@ export function buildPassivoSummary(positions: NormalizedPassivoPosition[]): Pas
 }
 
 /** Lista de posicoes por cotista para a visao detalhada (ordenada por valor bruto desc). */
-export function buildDetailedPassivoPositions(positions: NormalizedPassivoPosition[]): DetailedPassivoPosition[] {
-  const total = sum(positions, (p) => p.vlBruto);
+export function buildDetailedPassivoPositions(
+  positions: NormalizedPassivoPosition[],
+  totalFundo?: number,
+): DetailedPassivoPosition[] {
+  const total = totalFundo ?? sum(positions, (p) => p.vlBruto);
   return positions
     .map((p) => ({
       cotista: p.noCotista,
