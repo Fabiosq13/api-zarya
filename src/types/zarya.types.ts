@@ -90,7 +90,7 @@ export interface ZaryaPassivoPosition {
   vl_IRRF?: number;
   vl_IOF?: number;
   tp_Pessoa?: string;
-  no_Tributacao_Fundo?: string;
+  no_Perfil_CVM?: string;
   no_Grupo_Familiar?: string;
   no_Tipo_Investidor?: string;
   vl_Aplicado?: number;

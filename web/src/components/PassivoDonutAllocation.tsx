@@ -6,12 +6,12 @@ import { formatBRL, formatPct } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { GroupedItem, PassivoSummary } from "@/types";
 
-type Dim = "porTributacao" | "porTipoPessoa" | "porGrupoFamiliar" | "porTipoInvestidor";
+type Dim = "porPerfilCVM" | "porTipoPessoa" | "porGrupoFamiliar" | "porTipoInvestidor";
 const DIMS: { key: Dim; label: string }[] = [
-  { key: "porTributacao", label: "Tributação" },
+  { key: "porPerfilCVM", label: "Perfil CVM" },
   { key: "porTipoPessoa", label: "Tipo de pessoa" },
   { key: "porGrupoFamiliar", label: "Grupo familiar" },
-  { key: "porTipoInvestidor", label: "Perfil investidor" },
+  { key: "porTipoInvestidor", label: "Investidor" },
 ];
 
 const SIZE = 184;
@@ -21,7 +21,7 @@ const R = (SIZE - STROKE) / 2 - PAD;
 const C = 2 * Math.PI * R;
 
 export function PassivoDonutAllocation({ summary }: { summary: PassivoSummary }) {
-  const [dim, setDim] = useState<Dim>("porTributacao");
+  const [dim, setDim] = useState<Dim>("porPerfilCVM");
   const [active, setActive] = useState(0);
 
   const data = useMemo(() => {

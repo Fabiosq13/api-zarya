@@ -113,7 +113,7 @@ export interface NormalizedPassivoPosition {
   vlIOF: number;
 
   tpPessoa: string;
-  noTributacaoFundo: string;
+  noPerfilCVM: string;
   noGrupoFamiliar: string;
   noTipoInvestidor: string;
   vlAplicado: number;
@@ -145,8 +145,9 @@ export interface PassivoSummary {
   resgatadoTotal: number;
   comeCotasTotal: number;
   quantidadeCotistas: number;
+  quantidadeCotas: number;
   quantidadePosicoes: number;
-  porTributacao: GroupedItem[];
+  porPerfilCVM: GroupedItem[];
   porTipoPessoa: GroupedItem[];
   porGrupoFamiliar: GroupedItem[];
   porTipoInvestidor: GroupedItem[];

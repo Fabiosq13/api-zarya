@@ -61,7 +61,7 @@ export function normalizePassivoPosition(raw: ZaryaPassivoPosition): NormalizedP
     vlIOF: toNumber(raw.vl_IOF),
 
     tpPessoa: raw.tp_Pessoa?.trim() || "Não identificado",
-    noTributacaoFundo: raw.no_Tributacao_Fundo?.trim() || "Não classificado",
+    noPerfilCVM: raw.no_Perfil_CVM?.trim() || "Não classificado",
     noGrupoFamiliar: raw.no_Grupo_Familiar?.trim() || "Não classificado",
     noTipoInvestidor: raw.no_Tipo_Investidor?.trim() || "Não classificado",
     vlAplicado: toNumber(raw.vl_Aplicado),

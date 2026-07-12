@@ -7,10 +7,19 @@ import { PassivoSummaryHero } from "@/components/PassivoSummaryHero";
 import { PassivoDonutAllocation } from "@/components/PassivoDonutAllocation";
 import { PassivoTopCotistas } from "@/components/PassivoTopCotistas";
 import { PassivoFluxoCard } from "@/components/PassivoFluxoCard";
-import { PassivoViewTabs, type PassivoViewKey } from "@/components/PassivoViewTabs";
+import { PassivoTributosCard } from "@/components/PassivoTributosCard";
+import {
+  PassivoViewTabs,
+  type PassivoViewKey,
+} from "@/components/PassivoViewTabs";
 import type { DetailedPassivoPosition, PassivoSummary } from "@/types";
 
-type SortKey = "cotista" | "valorBruto" | "valorLiquido" | "rendimento" | "percentual";
+type SortKey =
+  | "cotista"
+  | "valorBruto"
+  | "valorLiquido"
+  | "rendimento"
+  | "percentual";
 
 const COLS: { key: SortKey; label: string; align: "left" | "right" }[] = [
   { key: "cotista", label: "Cotista", align: "left" },
@@ -38,14 +47,19 @@ export function PassivoView({
     const term = q.trim().toLowerCase();
     const filtered = posicoes.filter((p) => {
       if (!term) return true;
-      return p.cotista.toLowerCase().includes(term) || p.carteira.toLowerCase().includes(term);
+      return (
+        p.cotista.toLowerCase().includes(term) ||
+        p.carteira.toLowerCase().includes(term)
+      );
     });
     return [...filtered].sort((a, b) => {
       const va = a[sort];
       const vb = b[sort];
       if (typeof va === "string" && typeof vb === "string")
         return dir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
-      return dir === "asc" ? (va as number) - (vb as number) : (vb as number) - (va as number);
+      return dir === "asc"
+        ? (va as number) - (vb as number)
+        : (vb as number) - (va as number);
     });
   }, [posicoes, q, sort, dir]);
 
@@ -69,7 +83,10 @@ export function PassivoView({
             <PassivoDonutAllocation summary={summary} />
             <PassivoTopCotistas summary={summary} />
           </div>
-          <PassivoFluxoCard summary={summary} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <PassivoFluxoCard summary={summary} />
+            <PassivoTributosCard summary={summary} />
+          </div>
         </div>
       )}
 
@@ -82,7 +99,9 @@ export function PassivoView({
               </span>
               <div>
                 <p className="eyebrow">Detalhamento</p>
-                <h3 className="text-[0.95rem] font-bold tracking-tight">Cotistas ({rows.length})</h3>
+                <h3 className="text-[0.95rem] font-bold tracking-tight">
+                  Cotistas ({rows.length})
+                </h3>
               </div>
             </div>
             <div className="relative w-full sm:w-64">
@@ -109,7 +128,12 @@ export function PassivoView({
                         c.align === "right" ? "text-right" : "text-left",
                       )}
                     >
-                      <span className={cn("inline-flex items-center gap-1", c.align === "right" && "flex-row-reverse")}>
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1",
+                          c.align === "right" && "flex-row-reverse",
+                        )}
+                      >
                         {c.label}
                         {sort === c.key &&
                           (dir === "asc" ? (
@@ -129,8 +153,15 @@ export function PassivoView({
                     className="border-b border-border/50 transition-colors last:border-0 hover:bg-[hsl(220_24%_97.5%)]"
                   >
                     <td className="max-w-[230px] px-4 py-2.5">
-                      <p className="truncate font-semibold text-ink" title={p.cotista}>{p.cotista}</p>
-                      <p className="truncate text-[0.68rem] text-muted-foreground">{p.carteira}</p>
+                      <p
+                        className="truncate font-semibold text-ink"
+                        title={p.cotista}
+                      >
+                        {p.cotista}
+                      </p>
+                      <p className="truncate text-[0.68rem] text-muted-foreground">
+                        {p.carteira}
+                      </p>
                     </td>
                     <td className="num whitespace-nowrap px-4 py-2.5 text-right font-semibold">
                       {formatBRL(p.valorBruto)}
@@ -154,7 +185,10 @@ export function PassivoView({
                 ))}
                 {rows.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                    <td
+                      colSpan={5}
+                      className="px-4 py-12 text-center text-sm text-muted-foreground"
+                    >
                       Nenhuma posição encontrada.
                     </td>
                   </tr>
