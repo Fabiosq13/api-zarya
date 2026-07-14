@@ -4,6 +4,8 @@ import {
   chatBodySchema,
   carteirasQuerySchema,
   summaryQuerySchema,
+  passivoSummaryQuerySchema,
+  cotistasQuerySchema,
   type ChatBody,
 } from "../schemas/portfolio.schema.js";
 import * as conversation from "../services/conversation.service.js";
@@ -88,6 +90,57 @@ export async function summaryHandler(req: FastifyRequest, reply: FastifyReply) {
   return reply.send({
     dtPesquisa,
     idCarteira,
+    summary,
+    posicoes,
+    meta: { cacheHit },
+  });
+}
+
+/** GET /api/v1/portfolio/passivo/carteiras — lista de fundos com passivo (tem cotistas). */
+export async function passivoCarteirasHandler(req: FastifyRequest, reply: FastifyReply) {
+  const parsed = carteirasQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    return reply.status(400).send({
+      erro: "validacao",
+      detalhes: parsed.error.flatten().fieldErrors,
+    });
+  }
+
+  const result = await portfolio.listPassivoCarteiras(parsed.data.dtPesquisa);
+  return reply.send(result);
+}
+
+/** GET /api/v1/portfolio/passivo/cotistas — lista de cotistas para o filtro da tela de passivos. */
+export async function cotistasHandler(req: FastifyRequest, reply: FastifyReply) {
+  const parsed = cotistasQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    return reply.status(400).send({
+      erro: "validacao",
+      detalhes: parsed.error.flatten().fieldErrors,
+    });
+  }
+
+  const result = await portfolio.listCotistas(parsed.data.dtPesquisa, parsed.data.idCarteira);
+  return reply.send(result);
+}
+
+/** GET /api/v1/portfolio/passivo/summary — indicadores e tabela de cotistas de uma carteira/data. */
+export async function passivoSummaryHandler(req: FastifyRequest, reply: FastifyReply) {
+  const parsed = passivoSummaryQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    return reply.status(400).send({
+      erro: "validacao",
+      detalhes: parsed.error.flatten().fieldErrors,
+    });
+  }
+
+  const { dtPesquisa, idCarteira, idCotista } = parsed.data;
+  const { summary, posicoes, cacheHit } = await portfolio.getPassivoSummary(dtPesquisa, idCarteira, idCotista);
+
+  return reply.send({
+    dtPesquisa,
+    idCarteira,
+    idCotista,
     summary,
     posicoes,
     meta: { cacheHit },

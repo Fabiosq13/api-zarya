@@ -15,12 +15,15 @@ export const chatMessageSchema = z.object({
  */
 /** Contexto opcional do painel: carteira e data atualmente selecionadas. */
 export const chatContextSchema = z.object({
+  modo: z.enum(["ativos", "passivos"]).optional(),
   idCarteira: z.coerce.number().int().min(0).optional(),
   noResumido: z.string().min(1).max(200).optional(),
   dtPesquisa: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional(),
+  idCotista: z.coerce.number().int().min(0).optional(),
+  noCotista: z.string().min(1).max(200).optional(),
 });
 
 export const chatBodySchema = z
@@ -48,7 +51,22 @@ export const summaryQuerySchema = z.object({
   idCarteira: z.coerce.number().int().min(0).default(0),
 });
 
+/** Query do GET /api/v1/portfolio/passivo/summary. */
+export const passivoSummaryQuerySchema = z.object({
+  dtPesquisa: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "dtPesquisa deve ser YYYY-MM-DD"),
+  idCarteira: z.coerce.number().int().min(0).default(0),
+  idCotista: z.coerce.number().int().min(0).default(0),
+});
+
+/** Query do GET /api/v1/portfolio/passivo/cotistas. */
+export const cotistasQuerySchema = z.object({
+  dtPesquisa: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "dtPesquisa deve ser YYYY-MM-DD"),
+  idCarteira: z.coerce.number().int().min(0).default(0),
+});
+
 export type ChatBody = z.infer<typeof chatBodySchema>;
 export type ChatMessageInput = z.infer<typeof chatMessageSchema>;
 export type CarteirasQuery = z.infer<typeof carteirasQuerySchema>;
 export type SummaryQuery = z.infer<typeof summaryQuerySchema>;
+export type PassivoSummaryQuery = z.infer<typeof passivoSummaryQuerySchema>;
+export type CotistasQuery = z.infer<typeof cotistasQuerySchema>;

@@ -4,6 +4,9 @@ import type {
   GroupedItem,
   VencimentoItem,
   DetailedPosition,
+  NormalizedPassivoPosition,
+  PassivoSummary,
+  DetailedPassivoPosition,
 } from "../types/portfolio.types.js";
 import { pct, round2 } from "../utils/number.util.js";
 
@@ -96,4 +99,47 @@ export function buildDetailedPositions(positions: NormalizedPosition[]): Detaile
       diasParaVencimento: p.diasParaVencimento,
     }))
     .sort((a, b) => b.valor - a.valor);
+}
+
+/** Agregacoes deterministicas de uma composicao de PASSIVO (posicoes por cotista). */
+export function buildPassivoSummary(positions: NormalizedPassivoPosition[]): PassivoSummary {
+  const valorBrutoTotal = sum(positions, (p) => p.vlBruto);
+
+  return {
+    valorBrutoTotal,
+    valorLiquidoTotal: sum(positions, (p) => p.vlLiquido),
+    rendimentoTotal: sum(positions, (p) => p.vlRendimento),
+    irrfTotal: sum(positions, (p) => p.vlIRRF),
+    iofTotal: sum(positions, (p) => p.vlIOF),
+    aplicadoTotal: sum(positions, (p) => p.vlAplicado),
+    resgatadoTotal: sum(positions, (p) => p.vlResgatado),
+    comeCotasTotal: sum(positions, (p) => p.vlComeCotas),
+    quantidadeCotistas: new Set(positions.map((p) => p.nuCotista)).size,
+    quantidadeCotas: sum(positions, (p) => p.qtEstoque),
+    quantidadePosicoes: positions.length,
+    porPerfilCVM: groupAndRank(positions, (p) => p.noPerfilCVM, (p) => p.vlBruto, valorBrutoTotal),
+    porTipoPessoa: groupAndRank(positions, (p) => p.tpPessoa, (p) => p.vlBruto, valorBrutoTotal),
+    porGrupoFamiliar: groupAndRank(positions, (p) => p.noGrupoFamiliar, (p) => p.vlBruto, valorBrutoTotal),
+    porTipoInvestidor: groupAndRank(positions, (p) => p.noTipoInvestidor, (p) => p.vlBruto, valorBrutoTotal),
+    maioresCotistas: groupAndRank(positions, (p) => p.noCotista, (p) => p.vlBruto, valorBrutoTotal).slice(0, 10),
+  };
+}
+
+/** Lista de posicoes por cotista para a visao detalhada (ordenada por valor bruto desc). */
+export function buildDetailedPassivoPositions(
+  positions: NormalizedPassivoPosition[],
+  totalFundo?: number,
+): DetailedPassivoPosition[] {
+  const total = totalFundo ?? sum(positions, (p) => p.vlBruto);
+  return positions
+    .map((p) => ({
+      cotista: p.noCotista,
+      carteira: p.noResumido,
+      quantidade: round2(p.qtEstoque),
+      valorBruto: round2(p.vlBruto),
+      valorLiquido: round2(p.vlLiquido),
+      rendimento: round2(p.vlRendimento),
+      percentual: pct(p.vlBruto, total),
+    }))
+    .sort((a, b) => b.valorBruto - a.valorBruto);
 }

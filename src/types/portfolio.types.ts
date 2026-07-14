@@ -97,3 +97,69 @@ export interface ChatMessage {
   role: "user" | "model";
   content: string;
 }
+
+/** Posicao normalizada de PASSIVO (uma linha = um cotista numa carteira). */
+export interface NormalizedPassivoPosition {
+  nuPortfolio: number;
+  noResumido: string;
+  nuCotista: number;
+  noCotista: string;
+
+  qtEstoque: number;
+  vlBruto: number;
+  vlLiquido: number;
+  vlRendimento: number;
+  vlIRRF: number;
+  vlIOF: number;
+
+  tpPessoa: string;
+  noPerfilCVM: string;
+  noGrupoFamiliar: string;
+  noTipoInvestidor: string;
+  vlAplicado: number;
+  vlResgatado: number;
+  vlComeCotas: number;
+  qtBloqueada: number;
+
+  dtEstoque: string | null;
+}
+
+/** Posicao de cotista exposta na tabela de passivos. */
+export interface DetailedPassivoPosition {
+  cotista: string;
+  carteira: string;
+  quantidade: number;
+  valorBruto: number;
+  valorLiquido: number;
+  rendimento: number;
+  percentual: number;
+}
+
+export interface PassivoSummary {
+  valorBrutoTotal: number;
+  valorLiquidoTotal: number;
+  rendimentoTotal: number;
+  irrfTotal: number;
+  iofTotal: number;
+  aplicadoTotal: number;
+  resgatadoTotal: number;
+  comeCotasTotal: number;
+  quantidadeCotistas: number;
+  quantidadeCotas: number;
+  quantidadePosicoes: number;
+  porPerfilCVM: GroupedItem[];
+  porTipoPessoa: GroupedItem[];
+  porGrupoFamiliar: GroupedItem[];
+  porTipoInvestidor: GroupedItem[];
+  maioresCotistas: GroupedItem[];
+}
+
+/** Item da lista de cotistas selecionaveis no filtro da tela de passivos. */
+export interface CotistaItem {
+  idCotista: number;
+  nome: string;
+}
+
+export interface CotistasResponse {
+  cotistas: CotistaItem[];
+}

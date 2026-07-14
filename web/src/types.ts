@@ -66,11 +66,9 @@ export interface SummaryResponse {
   meta: { cacheHit: boolean };
 }
 
-export interface ChatData {
-  dtPesquisa: string;
-  idCarteira: number;
-  summary: PortfolioSummary;
-}
+export type ChatData =
+  | { modo: "ativos"; dtPesquisa: string; idCarteira: number; summary: PortfolioSummary }
+  | { modo: "passivos"; dtPesquisa: string; idCarteira: number; idCotista: number; summary: PassivoSummary };
 
 export interface UiActions {
   aba?: "geral" | "analise" | "posicoes";
@@ -92,7 +90,57 @@ export interface ChatResponse {
 }
 
 export interface ChatContext {
+  modo?: "ativos" | "passivos";
   idCarteira?: number;
   noResumido?: string;
   dtPesquisa?: string;
+  idCotista?: number;
+  noCotista?: string;
+}
+
+export interface PassivoSummary {
+  valorBrutoTotal: number;
+  valorLiquidoTotal: number;
+  rendimentoTotal: number;
+  irrfTotal: number;
+  iofTotal: number;
+  aplicadoTotal: number;
+  resgatadoTotal: number;
+  comeCotasTotal: number;
+  quantidadeCotistas: number;
+  quantidadeCotas: number;
+  quantidadePosicoes: number;
+  porPerfilCVM: GroupedItem[];
+  porTipoPessoa: GroupedItem[];
+  porGrupoFamiliar: GroupedItem[];
+  porTipoInvestidor: GroupedItem[];
+  maioresCotistas: GroupedItem[];
+}
+
+export interface DetailedPassivoPosition {
+  cotista: string;
+  carteira: string;
+  quantidade: number;
+  valorBruto: number;
+  valorLiquido: number;
+  rendimento: number;
+  percentual: number;
+}
+
+export interface CotistaItem {
+  idCotista: number;
+  nome: string;
+}
+
+export interface CotistasResponse {
+  cotistas: CotistaItem[];
+}
+
+export interface PassivoSummaryResponse {
+  dtPesquisa: string;
+  idCarteira: number;
+  idCotista: number;
+  summary: PassivoSummary;
+  posicoes: DetailedPassivoPosition[];
+  meta: { cacheHit: boolean };
 }

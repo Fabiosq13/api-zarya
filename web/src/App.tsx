@@ -1,11 +1,31 @@
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, TriangleAlert } from "lucide-react";
-import { fetchCarteiras, fetchMe, fetchSummary, getToken, logout } from "@/lib/api";
-import type { CarteiraItem, ChatData, DetailedPosition, PortfolioSummary, UiActions } from "@/types";
+import {
+  fetchCarteiras,
+  fetchCotistas,
+  fetchMe,
+  fetchPassivoCarteiras,
+  fetchPassivoSummary,
+  fetchSummary,
+  getToken,
+  logout,
+} from "@/lib/api";
+import type {
+  CarteiraItem,
+  ChatData,
+  CotistaItem,
+  DetailedPassivoPosition,
+  DetailedPosition,
+  PassivoSummary,
+  PortfolioSummary,
+  UiActions,
+} from "@/types";
 import { Header } from "@/components/Header";
 import { LoginPage } from "@/components/LoginPage";
 import { WalletSelector } from "@/components/WalletSelector";
+import { CotistaSelector } from "@/components/CotistaSelector";
 import { DateSelector } from "@/components/DateSelector";
+import { ModeToggle, type Modo } from "@/components/ModeToggle";
 import { ViewTabs, type ViewKey } from "@/components/ViewTabs";
 import { SummaryHero } from "@/components/SummaryHero";
 import { DonutAllocation } from "@/components/DonutAllocation";
@@ -13,6 +33,7 @@ import { TopPositions } from "@/components/TopPositions";
 import { VencimentosCard } from "@/components/VencimentosCard";
 import { AnalyticsView } from "@/components/AnalyticsView";
 import { PositionsTable } from "@/components/PositionsTable";
+import { PassivoView } from "@/components/PassivoView";
 import { ChatPanel } from "@/components/ChatPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateLong } from "@/lib/format";
@@ -30,6 +51,15 @@ export default function App() {
   const [bootLoading, setBootLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [authed, setAuthed] = useState<boolean | null>(null); // null = verificando
+
+  const [modo, setModo] = useState<Modo>("ativos");
+  const [passivoCarteiras, setPassivoCarteiras] = useState<CarteiraItem[]>([]);
+  const [idCarteiraPassivo, setIdCarteiraPassivo] = useState<number | undefined>();
+  const [cotistas, setCotistas] = useState<CotistaItem[]>([]);
+  const [idCotista, setIdCotista] = useState<number>(0);
+  const [passivoSummary, setPassivoSummary] = useState<PassivoSummary | null>(null);
+  const [passivoPosicoes, setPassivoPosicoes] = useState<DetailedPassivoPosition[]>([]);
+  const [loadingPassivo, setLoadingPassivo] = useState(false);
 
   // Bootstrap de sessão: valida o token existente; escuta expiração.
   useEffect(() => {
@@ -83,18 +113,73 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (idCarteira != null && dtPesquisa) loadSummary(dtPesquisa, idCarteira);
-  }, [idCarteira, dtPesquisa, loadSummary]);
+    if (modo === "ativos" && idCarteira != null && dtPesquisa) loadSummary(dtPesquisa, idCarteira);
+  }, [modo, idCarteira, dtPesquisa, loadSummary]);
+
+  useEffect(() => {
+    if (!authed || modo !== "passivos" || passivoCarteiras.length > 0) return;
+    (async () => {
+      try {
+        const res = await fetchPassivoCarteiras(dtPesquisa);
+        setPassivoCarteiras(res.carteiras);
+        if (res.dtPesquisa !== dtPesquisa) setDtPesquisa(res.dtPesquisa);
+        if (res.carteiras.length) setIdCarteiraPassivo(res.carteiras[0].idCarteira);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Falha ao carregar carteiras de passivo");
+      }
+    })();
+  }, [authed, modo, passivoCarteiras.length, dtPesquisa]);
+
+  useEffect(() => {
+    if (modo !== "passivos" || idCarteiraPassivo == null || !dtPesquisa) return;
+    fetchCotistas(dtPesquisa, idCarteiraPassivo)
+      .then((res) => setCotistas(res.cotistas))
+      .catch((e) => setError(e instanceof Error ? e.message : "Falha ao carregar cotistas"));
+  }, [modo, idCarteiraPassivo, dtPesquisa]);
+
+  const loadPassivoSummary = useCallback(async (date: string, id: number, cotista: number) => {
+    setLoadingPassivo(true);
+    setError(null);
+    try {
+      const res = await fetchPassivoSummary(date, id, cotista);
+      setPassivoSummary(res.summary);
+      setPassivoPosicoes(res.posicoes ?? []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Falha ao carregar dados de passivo");
+      setPassivoSummary(null);
+      setPassivoPosicoes([]);
+    } finally {
+      setLoadingPassivo(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (modo === "passivos" && idCarteiraPassivo != null && dtPesquisa) {
+      loadPassivoSummary(dtPesquisa, idCarteiraPassivo, idCotista);
+    }
+  }, [modo, idCarteiraPassivo, dtPesquisa, idCotista, loadPassivoSummary]);
 
   const handleChatData = useCallback(
     (data: ChatData) => {
+      if (data.modo === "passivos") {
+        setPassivoSummary(data.summary);
+        if (data.dtPesquisa) setDtPesquisa(data.dtPesquisa);
+        if (
+          data.idCarteira != null &&
+          passivoCarteiras.some((c) => c.idCarteira === data.idCarteira)
+        ) {
+          setIdCarteiraPassivo(data.idCarteira);
+        }
+        if (data.idCotista != null) setIdCotista(data.idCotista);
+        return;
+      }
       setSummary(data.summary);
       if (data.dtPesquisa) setDtPesquisa(data.dtPesquisa);
       if (data.idCarteira != null && carteiras.some((c) => c.idCarteira === data.idCarteira)) {
         setIdCarteira(data.idCarteira);
       }
     },
-    [carteiras],
+    [carteiras, passivoCarteiras],
   );
 
   const handleUi = useCallback((ui: UiActions) => {
@@ -106,6 +191,16 @@ export default function App() {
       if (!ui.aba) setView("posicoes");
     }
   }, []);
+
+  function handleDateChange(d: string) {
+    setDtPesquisa(d);
+    if (modo === "passivos") setIdCotista(0);
+  }
+
+  function handleCarteiraPassivoChange(id: number) {
+    setIdCarteiraPassivo(id);
+    setIdCotista(0);
+  }
 
   const carteiraAtual = carteiras.find((c) => c.idCarteira === idCarteira);
   const semDados = summary && summary.quantidadePosicoes === 0;
@@ -119,6 +214,13 @@ export default function App() {
     setPosicoes([]);
     setIdCarteira(undefined);
     setView("geral");
+    setModo("ativos");
+    setPassivoCarteiras([]);
+    setIdCarteiraPassivo(undefined);
+    setCotistas([]);
+    setIdCotista(0);
+    setPassivoSummary(null);
+    setPassivoPosicoes([]);
   }
 
   if (authed === null) {
@@ -146,8 +248,20 @@ export default function App() {
           </>
         ) : (
           <>
-            <WalletSelector carteiras={carteiras} value={idCarteira} onChange={setIdCarteira} />
-            <DateSelector value={dtPesquisa} onChange={setDtPesquisa} />
+            <ModeToggle value={modo} onChange={setModo} />
+            {modo === "passivos" && (
+              <CotistaSelector cotistas={cotistas} value={idCotista} onChange={setIdCotista} />
+            )}
+            {modo === "ativos" ? (
+              <WalletSelector carteiras={carteiras} value={idCarteira} onChange={setIdCarteira} />
+            ) : (
+              <WalletSelector
+                carteiras={passivoCarteiras}
+                value={idCarteiraPassivo}
+                onChange={handleCarteiraPassivoChange}
+              />
+            )}
+            <DateSelector value={dtPesquisa} onChange={handleDateChange} />
           </>
         )}
       </Header>
@@ -155,49 +269,85 @@ export default function App() {
       <div className="mx-auto w-full max-w-[1680px] min-h-0 flex-1 p-4 lg:p-5">
         <div className="grid grid-cols-1 gap-4 xl:h-full xl:min-h-0 xl:grid-cols-[minmax(0,1fr)_390px]">
           <main className="flex min-w-0 flex-col gap-4 xl:min-h-0">
-            <ViewTabs value={view} onChange={setView} count={summary?.quantidadePosicoes} />
+            {modo === "ativos" ? (
+              <>
+                <ViewTabs value={view} onChange={setView} count={summary?.quantidadePosicoes} />
 
-            {error && (
-              <div className="card flex shrink-0 items-center gap-2 rounded-[var(--radius)] px-4 py-3 text-sm text-loss">
-                <TriangleAlert className="h-4 w-4 shrink-0" />
-                {error}
-              </div>
+                {error && (
+                  <div className="card flex shrink-0 items-center gap-2 rounded-[var(--radius)] px-4 py-3 text-sm text-loss">
+                    <TriangleAlert className="h-4 w-4 shrink-0" />
+                    {error}
+                  </div>
+                )}
+
+                {busy ? (
+                  <DashboardSkeleton />
+                ) : semDados ? (
+                  <EmptyState carteira={carteiraAtual?.noResumido} data={dtPesquisa} />
+                ) : summary ? (
+                  <div key={`${idCarteira}-${dtPesquisa}-${view}`} className="flex min-h-0 flex-1 flex-col gap-4">
+                    <SummaryHero summary={summary} dtPesquisa={dtPesquisa} />
+
+                    {view === "geral" && (
+                      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-2">
+                        <DonutAllocation summary={summary} dim={donutDim} onDim={setDonutDim} />
+                        <TopPositions summary={summary} />
+                      </div>
+                    )}
+
+                    {view === "analise" && (
+                      <div className="min-h-0 flex-1 space-y-4 overflow-auto pr-0.5">
+                        <AnalyticsView summary={summary} posicoes={posicoes} />
+                        <VencimentosCard summary={summary} />
+                      </div>
+                    )}
+
+                    {view === "posicoes" && (
+                      <div className="min-h-0 flex-1">
+                        <PositionsTable posicoes={posicoes} classe={filtroClasse} onClasse={setFiltroClasse} />
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <>
+                {error && (
+                  <div className="card flex shrink-0 items-center gap-2 rounded-[var(--radius)] px-4 py-3 text-sm text-loss">
+                    <TriangleAlert className="h-4 w-4 shrink-0" />
+                    {error}
+                  </div>
+                )}
+
+                {loadingPassivo ? (
+                  <DashboardSkeleton />
+                ) : passivoSummary ? (
+                  <PassivoView
+                    key={`${idCarteiraPassivo}-${dtPesquisa}-${idCotista}`}
+                    summary={passivoSummary}
+                    posicoes={passivoPosicoes}
+                    dtPesquisa={dtPesquisa}
+                  />
+                ) : null}
+              </>
             )}
-
-            {busy ? (
-              <DashboardSkeleton />
-            ) : semDados ? (
-              <EmptyState carteira={carteiraAtual?.noResumido} data={dtPesquisa} />
-            ) : summary ? (
-              <div key={`${idCarteira}-${dtPesquisa}-${view}`} className="flex min-h-0 flex-1 flex-col gap-4">
-                <SummaryHero summary={summary} dtPesquisa={dtPesquisa} />
-
-                {view === "geral" && (
-                  <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-2">
-                    <DonutAllocation summary={summary} dim={donutDim} onDim={setDonutDim} />
-                    <TopPositions summary={summary} />
-                  </div>
-                )}
-
-                {view === "analise" && (
-                  <div className="min-h-0 flex-1 space-y-4 overflow-auto pr-0.5">
-                    <AnalyticsView summary={summary} posicoes={posicoes} />
-                    <VencimentosCard summary={summary} />
-                  </div>
-                )}
-
-                {view === "posicoes" && (
-                  <div className="min-h-0 flex-1">
-                    <PositionsTable posicoes={posicoes} classe={filtroClasse} onClasse={setFiltroClasse} />
-                  </div>
-                )}
-              </div>
-            ) : null}
           </main>
 
           <aside className="h-[560px] min-h-0 xl:h-auto">
             <ChatPanel
-              context={{ idCarteira, noResumido: carteiraAtual?.noResumido, dtPesquisa }}
+              context={
+                modo === "passivos"
+                  ? {
+                      modo: "passivos",
+                      idCarteira: idCarteiraPassivo,
+                      noResumido: passivoCarteiras.find((c) => c.idCarteira === idCarteiraPassivo)
+                        ?.noResumido,
+                      dtPesquisa,
+                      idCotista,
+                      noCotista: cotistas.find((c) => c.idCotista === idCotista)?.nome,
+                    }
+                  : { modo: "ativos", idCarteira, noResumido: carteiraAtual?.noResumido, dtPesquisa }
+              }
               onData={handleChatData}
               onUi={handleUi}
             />

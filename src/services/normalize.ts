@@ -1,5 +1,5 @@
-import type { ZaryaPosition } from "../types/zarya.types.js";
-import type { NormalizedPosition } from "../types/portfolio.types.js";
+import type { ZaryaPosition, ZaryaPassivoPosition } from "../types/zarya.types.js";
+import type { NormalizedPosition, NormalizedPassivoPosition } from "../types/portfolio.types.js";
 import { isSentinelDate, diasAteVencimento } from "../utils/date.util.js";
 import { toNumber } from "../utils/number.util.js";
 
@@ -41,4 +41,38 @@ export function normalizePosition(raw: ZaryaPosition): NormalizedPosition {
 
 export function normalizeAll(positions: ZaryaPosition[]): NormalizedPosition[] {
   return positions.map(normalizePosition);
+}
+
+/** Converte uma posicao CRUA de PASSIVO (cotista) em uma posicao normalizada. */
+export function normalizePassivoPosition(raw: ZaryaPassivoPosition): NormalizedPassivoPosition {
+  const dtEstoque = isSentinelDate(raw.dt_Estoque) ? null : raw.dt_Estoque ?? null;
+
+  return {
+    nuPortfolio: toNumber(raw.nu_portfolio),
+    noResumido: raw.no_Resumido?.trim() || `Carteira ${toNumber(raw.nu_portfolio)}`,
+    nuCotista: toNumber(raw.nu_Cotista),
+    noCotista: raw.no_Cotista?.trim() || "Nao identificado",
+
+    qtEstoque: toNumber(raw.qt_Estoque),
+    vlBruto: toNumber(raw.vl_Bruto),
+    vlLiquido: toNumber(raw.vl_Liquido),
+    vlRendimento: toNumber(raw.vl_Rendimento),
+    vlIRRF: toNumber(raw.vl_IRRF),
+    vlIOF: toNumber(raw.vl_IOF),
+
+    tpPessoa: raw.tp_Pessoa?.trim() || "Não identificado",
+    noPerfilCVM: raw.no_Perfil_CVM?.trim() || "Não classificado",
+    noGrupoFamiliar: raw.no_Grupo_Familiar?.trim() || "Não classificado",
+    noTipoInvestidor: raw.no_Tipo_Investidor?.trim() || "Não classificado",
+    vlAplicado: toNumber(raw.vl_Aplicado),
+    vlResgatado: toNumber(raw.vl_Resgatado),
+    vlComeCotas: toNumber(raw.vl_Come_Cotas),
+    qtBloqueada: toNumber(raw.qt_Bloqueada),
+
+    dtEstoque,
+  };
+}
+
+export function normalizePassivoAll(positions: ZaryaPassivoPosition[]): NormalizedPassivoPosition[] {
+  return positions.map(normalizePassivoPosition);
 }

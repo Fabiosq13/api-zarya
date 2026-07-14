@@ -66,9 +66,35 @@ export interface ZaryaPosition {
   pr_Produto?: number;
 }
 
-export interface ZaryaResponse {
+export interface ZaryaResponse<T = ZaryaPosition> {
   Status: boolean;
   Message: string;
   ProcessingTime: string;
-  Object: ZaryaPosition[];
+  Object: T[];
+}
+
+/**
+ * Tipos do payload CRU do endpoint Passivo/PosicaoConsolidada (posicao por cotista).
+ * Espelha os campos usados; tudo aqui e "como vem da fonte".
+ */
+export interface ZaryaPassivoPosition {
+  dt_Estoque?: string;
+  nu_portfolio?: number;
+  no_Resumido?: string;
+  nu_Cotista?: number;
+  no_Cotista?: string;
+  qt_Estoque?: number;
+  vl_Bruto?: number;
+  vl_Liquido?: number;
+  vl_Rendimento?: number;
+  vl_IRRF?: number;
+  vl_IOF?: number;
+  tp_Pessoa?: string;
+  no_Perfil_CVM?: string;
+  no_Grupo_Familiar?: string;
+  no_Tipo_Investidor?: string;
+  vl_Aplicado?: number;
+  vl_Resgatado?: number;
+  vl_Come_Cotas?: number;
+  qt_Bloqueada?: number;
 }
