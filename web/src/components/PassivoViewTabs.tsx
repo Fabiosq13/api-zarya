@@ -1,11 +1,12 @@
-import { LayoutGrid, Users } from "lucide-react";
+import { BarChart3, LayoutGrid, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type PassivoViewKey = "geral" | "cotistas";
+export type PassivoViewKey = "geral" | "cotistas" | "analise";
 
 const TABS: { key: PassivoViewKey; label: string; icon: typeof LayoutGrid }[] = [
   { key: "geral", label: "Visão geral", icon: LayoutGrid },
   { key: "cotistas", label: "Cotistas", icon: Users },
+  { key: "analise", label: "Análise", icon: BarChart3 },
 ];
 
 interface Props {

@@ -114,6 +114,12 @@ export interface PassivoSummary {
   porTipoPessoa: GroupedItem[];
   porGrupoFamiliar: GroupedItem[];
   porTipoInvestidor: GroupedItem[];
+  porPerfil: GroupedItem[];
+  porObjetivo: GroupedItem[];
+  porHorizonteInvestimento: GroupedItem[];
+  porToleranciaRisco: GroupedItem[];
+  porExperienciaInvestimento: GroupedItem[];
+  porUF: GroupedItem[];
   maioresCotistas: GroupedItem[];
 }
 

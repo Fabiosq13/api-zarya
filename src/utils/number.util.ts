@@ -18,3 +18,8 @@ export function pct(parte: number, total: number): number {
 export function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
+
+/** Arredonda para 6 casas decimais (quantidades fracionárias, ex.: cotas). */
+export function round6(n: number): number {
+  return Math.round(n * 1e6) / 1e6;
+}

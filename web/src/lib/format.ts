@@ -15,11 +15,17 @@ const pctFmt = new Intl.NumberFormat("pt-BR", {
   maximumFractionDigits: 2,
 });
 
+const qty6Fmt = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 6,
+  maximumFractionDigits: 6,
+});
+
 export const formatBRL = (n: number) => brl.format(n ?? 0);
 export const formatBRLCompact = (n: number) => brlCompact.format(n ?? 0);
 export const formatPct = (n: number) => `${pctFmt.format(n ?? 0)}%`;
 export const formatNumber = (n: number) =>
   new Intl.NumberFormat("pt-BR").format(n ?? 0);
+export const formatQty6 = (n: number) => qty6Fmt.format(n ?? 0);
 
 /** "2025-06-05" (ou "2025-06-05T00:00:00") -> "05 de jun. de 2025" */
 export function formatDateLong(iso: string): string {

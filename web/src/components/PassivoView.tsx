@@ -8,6 +8,7 @@ import { PassivoDonutAllocation } from "@/components/PassivoDonutAllocation";
 import { PassivoTopCotistas } from "@/components/PassivoTopCotistas";
 import { PassivoFluxoCard } from "@/components/PassivoFluxoCard";
 import { PassivoTributosCard } from "@/components/PassivoTributosCard";
+import { PassivoAnaliseView } from "@/components/PassivoAnaliseView";
 import {
   PassivoViewTabs,
   type PassivoViewKey,
@@ -198,6 +199,8 @@ export function PassivoView({
           </div>
         </Card>
       )}
+
+      {view === "analise" && <PassivoAnaliseView summary={summary} />}
     </div>
   );
 }

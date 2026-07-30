@@ -69,6 +69,14 @@ export function normalizePassivoPosition(raw: ZaryaPassivoPosition): NormalizedP
     vlComeCotas: toNumber(raw.vl_Come_Cotas),
     qtBloqueada: toNumber(raw.qt_Bloqueada),
 
+    noPerfil: raw.no_Perfil?.trim() || "Não informado",
+    noObjetivo: raw.no_Objetivo?.trim() || "Não informado",
+    noHorizonteInvestimento: raw.no_Horizonte_Investimento?.trim() || "Não informado",
+    noToleranciaRisco: raw.no_Tolerancia_Risco?.trim() || "Não informado",
+    noExperienciaInvestimento: raw.no_Experiencia_Investimento?.trim() || "Não informado",
+    noCidade: raw.no_Cidade?.trim() || "Não informada",
+    coUF: raw.co_UF?.trim() || "Não informado",
+
     dtEstoque,
   };
 }

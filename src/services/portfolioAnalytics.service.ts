@@ -8,7 +8,7 @@ import type {
   PassivoSummary,
   DetailedPassivoPosition,
 } from "../types/portfolio.types.js";
-import { pct, round2 } from "../utils/number.util.js";
+import { pct, round2, round6 } from "../utils/number.util.js";
 
 function sum<T>(arr: T[], f: (x: T) => number): number {
   return round2(arr.reduce((acc, x) => acc + (f(x) || 0), 0));
@@ -115,12 +115,18 @@ export function buildPassivoSummary(positions: NormalizedPassivoPosition[]): Pas
     resgatadoTotal: sum(positions, (p) => p.vlResgatado),
     comeCotasTotal: sum(positions, (p) => p.vlComeCotas),
     quantidadeCotistas: new Set(positions.map((p) => p.nuCotista)).size,
-    quantidadeCotas: sum(positions, (p) => p.qtEstoque),
+    quantidadeCotas: round6(positions.reduce((acc, p) => acc + (p.qtEstoque || 0), 0)),
     quantidadePosicoes: positions.length,
     porPerfilCVM: groupAndRank(positions, (p) => p.noPerfilCVM, (p) => p.vlBruto, valorBrutoTotal),
     porTipoPessoa: groupAndRank(positions, (p) => p.tpPessoa, (p) => p.vlBruto, valorBrutoTotal),
     porGrupoFamiliar: groupAndRank(positions, (p) => p.noGrupoFamiliar, (p) => p.vlBruto, valorBrutoTotal),
     porTipoInvestidor: groupAndRank(positions, (p) => p.noTipoInvestidor, (p) => p.vlBruto, valorBrutoTotal),
+    porPerfil: groupAndRank(positions, (p) => p.noPerfil, (p) => p.vlBruto, valorBrutoTotal),
+    porObjetivo: groupAndRank(positions, (p) => p.noObjetivo, (p) => p.vlBruto, valorBrutoTotal),
+    porHorizonteInvestimento: groupAndRank(positions, (p) => p.noHorizonteInvestimento, (p) => p.vlBruto, valorBrutoTotal),
+    porToleranciaRisco: groupAndRank(positions, (p) => p.noToleranciaRisco, (p) => p.vlBruto, valorBrutoTotal),
+    porExperienciaInvestimento: groupAndRank(positions, (p) => p.noExperienciaInvestimento, (p) => p.vlBruto, valorBrutoTotal),
+    porUF: groupAndRank(positions, (p) => p.coUF, (p) => p.vlBruto, valorBrutoTotal),
     maioresCotistas: groupAndRank(positions, (p) => p.noCotista, (p) => p.vlBruto, valorBrutoTotal).slice(0, 10),
   };
 }

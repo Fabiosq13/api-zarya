@@ -121,6 +121,14 @@ export interface NormalizedPassivoPosition {
   vlComeCotas: number;
   qtBloqueada: number;
 
+  noPerfil: string;
+  noObjetivo: string;
+  noHorizonteInvestimento: string;
+  noToleranciaRisco: string;
+  noExperienciaInvestimento: string;
+  noCidade: string;
+  coUF: string;
+
   dtEstoque: string | null;
 }
 
@@ -151,6 +159,12 @@ export interface PassivoSummary {
   porTipoPessoa: GroupedItem[];
   porGrupoFamiliar: GroupedItem[];
   porTipoInvestidor: GroupedItem[];
+  porPerfil: GroupedItem[];
+  porObjetivo: GroupedItem[];
+  porHorizonteInvestimento: GroupedItem[];
+  porToleranciaRisco: GroupedItem[];
+  porExperienciaInvestimento: GroupedItem[];
+  porUF: GroupedItem[];
   maioresCotistas: GroupedItem[];
 }
 

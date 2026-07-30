@@ -97,4 +97,11 @@ export interface ZaryaPassivoPosition {
   vl_Resgatado?: number;
   vl_Come_Cotas?: number;
   qt_Bloqueada?: number;
+  no_Perfil?: string;
+  no_Objetivo?: string;
+  no_Horizonte_Investimento?: string;
+  no_Tolerancia_Risco?: string;
+  no_Experiencia_Investimento?: string;
+  no_Cidade?: string;
+  co_UF?: string;
 }

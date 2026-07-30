@@ -5,6 +5,7 @@ import {
   formatNumber,
   formatPct,
   formatDateLong,
+  formatQty6,
 } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { PassivoSummary } from "@/types";
@@ -45,7 +46,7 @@ export function PassivoSummaryHero({
     },
     {
       label: "Cotas",
-      value: formatNumber(summary.quantidadeCotas),
+      value: formatQty6(summary.quantidadeCotas),
       tone: "text-ink",
     },
   ];
