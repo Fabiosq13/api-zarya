@@ -36,8 +36,8 @@ const schema = z.object({
 
   // Autenticação (usuário único — sem banco de dados)
   // Defina AUTH_SECRET e AUTH_PASSWORD em produção. Os defaults servem para dev.
-  AUTH_EMAIL: z.string().email().default("zarya@atlantyx.com.br"),
-  AUTH_PASSWORD: z.string().min(1).default("Zarya@2025"),
+  AUTH_EMAIL: z.string().min(1).default("master.zarya"), // aceita usuário ou e-mail
+  AUTH_PASSWORD: z.string().min(1).default("Zar$#2026*"),
   AUTH_SECRET: z.string().min(1).default("troque-este-segredo-em-producao-zarya-atlantyx"),
   AUTH_TOKEN_TTL_HOURS: z.coerce.number().int().positive().default(12),
 

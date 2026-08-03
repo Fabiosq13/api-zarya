@@ -4,7 +4,7 @@ import { createToken, verifyCredentials } from "../services/auth.service.js";
 import { env } from "../config/env.js";
 
 const loginSchema = z.object({
-  email: z.string().email("E-mail inválido"),
+  email: z.string().min(1, "Informe o usuário"),
   password: z.string().min(1, "Informe a senha"),
 });
 

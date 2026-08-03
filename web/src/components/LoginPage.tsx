@@ -56,11 +56,11 @@ export function LoginPage({ onSuccess }: { onSuccess: () => void }) {
           <div className="relative">
             <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#00E5FF]" />
             <input
-              type="email"
+              type="text"
               autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="E-mail"
+              placeholder="Usuário"
               className={inputCls}
               required
             />

@@ -9,7 +9,6 @@ import {
   Layers3,
   Percent,
   Receipt,
-  TrendingUp,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { seriesColor } from "@/lib/palette";
@@ -25,10 +24,6 @@ interface Props {
 
 export function AnalyticsView({ summary, posicoes }: Props) {
   const conc = useMemo(() => concentration(summary, posicoes), [summary, posicoes]);
-  const rendPorClasse = useMemo(
-    () => groupSum(posicoes, (p) => p.classe, (p) => p.rendimentoLiquido),
-    [posicoes],
-  );
   const rendDiaPorClasse = useMemo(
     () => groupSum(posicoes, (p) => p.classe, (p) => p.rendimentoDia),
     [posicoes],
@@ -57,10 +52,7 @@ export function AnalyticsView({ summary, posicoes }: Props) {
         <BarCard title="Exposição por emissor" eyebrow="Risco de crédito" icon={<Building2 className="h-4 w-4" />} items={porEmissor} />
       </div>
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <SignedBarCard title="Resultado no dia por classe" eyebrow="Variação diária" icon={<Activity className="h-4 w-4" />} items={rendDiaPorClasse} />
-        <SignedBarCard title="Rentabilidade por classe" eyebrow="Resultado acumulado" icon={<TrendingUp className="h-4 w-4" />} items={rendPorClasse} />
-      </div>
+      <SignedBarCard title="Resultado no dia por classe" eyebrow="Variação diária" icon={<Activity className="h-4 w-4" />} items={rendDiaPorClasse} />
 
       <MaturityCard items={ladder} />
 
