@@ -16,7 +16,7 @@ export async function loginHandler(req: FastifyRequest, reply: FastifyReply) {
   }
   const { email, password } = parsed.data;
   if (!verifyCredentials(email, password)) {
-    return reply.status(401).send({ erro: "credenciais_invalidas", mensagem: "E-mail ou senha incorretos." });
+    return reply.status(401).send({ erro: "credenciais_invalidas", mensagem: "Usuário ou senha incorretos." });
   }
   const { token, expiresAt } = createToken(env.AUTH_EMAIL);
   return reply.send({ token, expiresAt, user: { email: env.AUTH_EMAIL } });

@@ -27,7 +27,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (res.status === 401) {
-    // Token ausente/expirado: limpa a sessão e avisa o app para voltar ao login.
+    // No login, um 401 significa credenciais inválidas — mostra o erro real do servidor
+    // (não é "sessão expirada", pois ainda não há sessão).
+    if (path.includes("/auth/login")) {
+      let msg = "Usuário ou senha incorretos.";
+      try {
+        const body = await res.json();
+        msg = body?.mensagem || msg;
+      } catch {
+        /* ignore */
+      }
+      throw new Error(msg);
+    }
+    // Demais rotas: token ausente/expirado — limpa a sessão e volta ao login.
     clearToken();
     window.dispatchEvent(new Event("zarya:auth-expired"));
     throw new Error("Sessão expirada. Faça login novamente.");
